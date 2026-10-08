@@ -1,0 +1,56 @@
+// prisma/schema/parcelas.prisma
+
+enum EstadoParcela {
+  ACTIVA
+  EN_PREPARACION
+  EN_DESCANSO
+  COSECHADA
+  INACTIVA
+
+  @@map("estados_parcela")
+  @@schema("parcelas")
+}
+
+model Parcela {
+  id                   String        @id @default(uuid(7)) @db.Uuid
+  codigo               String        @unique @map("codigo") @db.VarChar(50)
+  nombre               String        @map("nombre") @db.VarChar(150)
+  areaHectareas        Decimal       @map("area_hectareas") @db.Decimal(10, 4)
+  
+  // Relación con Cultivo
+  cultivoId            String        @map("cultivo_id") @db.Uuid
+  cultivo              Cultivo       @relation(fields: [cultivoId], references: [id], onDelete: Restrict)
+  variedad             String?       @map("variedad") @db.VarChar(100)
+  
+  // Relación con Responsable (Capataz / Ingeniero)
+  usuarioResponsableId String?              @map("usuario_responsable_id") @db.Uuid
+  usuarioResponsable   Usuario?             @relation(fields: [usuarioResponsableId], references: [id], onDelete: Restrict)
+  actividades          ActividadAgricola[]
+  
+  // Ubicación territorial
+  ubicacion            String?       @map("ubicacion") @db.VarChar(255)
+  departamento         String?       @map("departamento") @db.VarChar(100)
+  provincia            String?       @map("provincia") @db.VarChar(100)
+  distrito             String?       @map("distrito") @db.VarChar(100)
+  
+  estado               EstadoParcela @default(ACTIVA) @map("estado")
+  
+  // Delimitación espacial (GeoJSON o Array de coordenadas)
+  delimitacionGeoJson  Json?         @map("delimitacion_geo_json")
+  latitudCentro        Decimal?      @map("latitud_centro") @db.Decimal(11, 8)
+  longitudCentro       Decimal?      @map("longitud_centro") @db.Decimal(11, 8)
+
+  // Auditoría Universal
+  createdAt            DateTime      @default(now()) @map("created_at")
+  createdBy            String?       @map("created_by") @db.Uuid
+  updatedAt            DateTime      @updatedAt @map("updated_at")
+  updatedBy            String?       @map("updated_by") @db.Uuid
+  deletedAt            DateTime?     @map("deleted_at")
+  version              Int           @default(1) @map("version")
+
+  @@index([cultivoId])
+  @@index([usuarioResponsableId])
+  @@index([codigo])
+  @@map("parcelas")
+  @@schema("parcelas")
+}
