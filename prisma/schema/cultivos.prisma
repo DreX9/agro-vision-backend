@@ -1,0 +1,24 @@
+// prisma/schema/cultivos.prisma
+
+model Cultivo {
+  id                 String    @id @default(uuid(7)) @db.Uuid
+  nombre             String    @unique @map("nombre") @db.VarChar(100)
+  nombreCientifico   String?   @map("nombre_cientifico") @db.VarChar(150)
+  variedadesDefault  String[]  @default([]) @map("variedades_default")
+  colorHex           String?   @default("#546B41") @map("color_hex") @db.VarChar(7)
+  activo             Boolean   @default(true) @map("activo")
+
+  // Relaciones
+  parcelas           Parcela[]
+
+  // Auditoría Universal
+  createdAt          DateTime  @default(now()) @map("created_at")
+  createdBy          String?   @map("created_by") @db.Uuid
+  updatedAt          DateTime  @updatedAt @map("updated_at")
+  updatedBy          String?   @map("updated_by") @db.Uuid
+  deletedAt          DateTime? @map("deleted_at")
+  version            Int       @default(1) @map("version")
+
+  @@map("cultivos")
+  @@schema("cultivos")
+}

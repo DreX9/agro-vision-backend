@@ -1,0 +1,54 @@
+enum RolUsuario {
+  ADMINISTRADOR
+  AGRONOMO
+  SUPERVISOR
+  OPERADOR
+
+  @@map("roles_usuario")
+  @@schema("seguridad")
+}
+
+enum SexoUsuario {
+  MASCULINO
+  FEMENINO
+  OTRO
+
+  @@map("sexos_usuario")
+  @@schema("seguridad")
+}
+
+model Usuario {
+  id              String       @id @default(uuid(7)) @db.Uuid
+  nombres         String       @map("nombres") @db.VarChar(100)
+  apellidos       String       @map("apellidos") @db.VarChar(100)
+  correo          String       @unique @map("correo") @db.VarChar(150)
+  telefono        String?      @map("telefono") @db.VarChar(20)
+  passwordHash    String       @map("password_hash") @db.VarChar(255)
+  rol             RolUsuario   @default(ADMINISTRADOR) @map("rol")
+  sexo            SexoUsuario? @map("sexo")
+  fechaNacimiento DateTime?    @map("fecha_nacimiento") @db.Date
+  direccion       String?      @map("direccion") @db.VarChar(255)
+
+  departamento    String?      @map("departamento") @db.VarChar(100)
+  provincia       String?      @map("provincia") @db.VarChar(100)
+  activo          Boolean      @default(true) @map("activo")
+
+  // Relaciones
+  parcelas                   Parcela[]
+  actividadesComoResponsable ActividadAgricola[]   @relation("ActividadesResponsable")
+  asignacionesActividad      ActividadTrabajador[] @relation("ActividadesTrabajador")
+
+  // Auditoría Universal
+
+
+  createdAt       DateTime     @default(now()) @map("created_at")
+  createdBy       String?      @map("created_by") @db.Uuid
+  updatedAt       DateTime     @updatedAt @map("updated_at")
+  updatedBy       String?      @map("updated_by") @db.Uuid
+  deletedAt       DateTime?    @map("deleted_at")
+  version         Int          @default(1) @map("version")
+
+  @@index([correo])
+  @@map("usuarios")
+  @@schema("seguridad")
+}

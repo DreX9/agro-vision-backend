@@ -1,0 +1,142 @@
+// prisma/schema/actividades.prisma
+
+enum TipoActividad {
+  FERTILIZACION
+  CONTROL_PLAGAS
+  RIEGO
+  PODA
+  SIEMBRA
+  COSECHA
+  DESHIERBE
+  MANTENIMIENTO
+  OTRO
+
+  @@map("tipos_actividad")
+  @@schema("actividades")
+}
+
+enum EstadoActividad {
+  PENDIENTE
+  EN_PROGRESO
+  COMPLETADA
+  CANCELADA
+
+  @@map("estados_actividad")
+  @@schema("actividades")
+}
+
+enum CategoriaInsumo {
+  FERTILIZANTE
+  FITOSANITARIO
+  MAQUINARIA_EQUIPO
+  HERRAMIENTA
+  OTRO
+
+  @@map("categorias_insumo")
+  @@schema("actividades")
+}
+
+model Insumo {
+  id           String             @id @default(uuid(7)) @db.Uuid
+  codigo       String             @unique @map("codigo") @db.VarChar(50)
+  nombre       String             @map("nombre") @db.VarChar(150)
+  categoria    CategoriaInsumo    @default(FERTILIZANTE) @map("categoria")
+  unidadMedida String             @map("unidad_medida") @db.VarChar(50)
+  descripcion  String?            @map("descripcion") @db.VarChar(255)
+  activo       Boolean            @default(true) @map("activo")
+
+  // Relaciones
+  recursos     ActividadRecurso[]
+
+  // Auditoría Universal
+  createdAt    DateTime           @default(now()) @map("created_at")
+  createdBy    String?            @map("created_by") @db.Uuid
+  updatedAt    DateTime           @updatedAt @map("updated_at")
+  updatedBy    String?            @map("updated_by") @db.Uuid
+  deletedAt    DateTime?          @map("deleted_at")
+  version      Int                @default(1) @map("version")
+
+  @@index([nombre])
+  @@index([categoria])
+  @@map("insumos")
+  @@schema("actividades")
+}
+
+model ActividadAgricola {
+  id                   String               @id @default(uuid(7)) @db.Uuid
+  codigo               String               @unique @map("codigo") @db.VarChar(50)
+  titulo               String               @map("titulo") @db.VarChar(150)
+  tipo                 TipoActividad        @default(FERTILIZACION) @map("tipo")
+  descripcion          String?              @map("descripcion") @db.Text
+  observaciones        String?              @map("observaciones") @db.Text
+
+  // Parcela vinculada
+  parcelaId            String               @map("parcela_id") @db.Uuid
+  parcela              Parcela              @relation(fields: [parcelaId], references: [id], onDelete: Restrict)
+
+  // Responsable / Supervisor de la actividad
+  usuarioResponsableId String?              @map("usuario_responsable_id") @db.Uuid
+  usuarioResponsable   Usuario?             @relation("ActividadesResponsable", fields: [usuarioResponsableId], references: [id], onDelete: Restrict)
+
+  // Rango de fechas
+  fechaInicio          DateTime             @map("fecha_inicio")
+  fechaFin             DateTime?            @map("fecha_fin")
+
+  estado               EstadoActividad      @default(PENDIENTE) @map("estado")
+
+  // Cuadrilla de trabajadores y Recursos/Insumos
+  trabajadores         ActividadTrabajador[]
+  recursos             ActividadRecurso[]
+
+  // Auditoría Universal
+  createdAt            DateTime             @default(now()) @map("created_at")
+  createdBy            String?              @map("created_by") @db.Uuid
+  updatedAt            DateTime             @updatedAt @map("updated_at")
+  updatedBy            String?              @map("updated_by") @db.Uuid
+  deletedAt            DateTime?            @map("deleted_at")
+  version              Int                  @default(1) @map("version")
+
+  @@index([parcelaId])
+  @@index([usuarioResponsableId])
+  @@index([estado])
+  @@index([fechaInicio])
+  @@map("actividades_agricolas")
+  @@schema("actividades")
+}
+
+model ActividadTrabajador {
+  id              String            @id @default(uuid(7)) @db.Uuid
+  actividadId     String            @map("actividad_id") @db.Uuid
+  actividad       ActividadAgricola @relation(fields: [actividadId], references: [id], onDelete: Cascade)
+
+  usuarioId       String            @map("usuario_id") @db.Uuid
+  usuario         Usuario           @relation("ActividadesTrabajador", fields: [usuarioId], references: [id], onDelete: Restrict)
+
+  rolEnActividad  String?           @map("rol_en_actividad") @db.VarChar(100)
+  createdAt       DateTime          @default(now()) @map("created_at")
+
+  @@unique([actividadId, usuarioId])
+  @@index([actividadId])
+  @@index([usuarioId])
+  @@map("actividades_trabajadores")
+  @@schema("actividades")
+}
+
+model ActividadRecurso {
+  id               String            @id @default(uuid(7)) @db.Uuid
+  actividadId      String            @map("actividad_id") @db.Uuid
+  actividad        ActividadAgricola @relation(fields: [actividadId], references: [id], onDelete: Cascade)
+
+  insumoId         String            @map("insumo_id") @db.Uuid
+  insumo           Insumo            @relation(fields: [insumoId], references: [id], onDelete: Restrict)
+
+  cantidadEstimada Decimal           @map("cantidad_estimada") @db.Decimal(10, 2)
+  unidadMedida     String            @map("unidad_medida") @db.VarChar(50)
+  notas            String?           @map("notas") @db.VarChar(255)
+  createdAt        DateTime          @default(now()) @map("created_at")
+
+  @@index([actividadId])
+  @@index([insumoId])
+  @@map("actividades_recursos")
+  @@schema("actividades")
+}
