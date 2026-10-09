@@ -94,6 +94,30 @@ async function main() {
     }
   }
 
+  // Personal técnico y supervisión
+  const personalTecnicoInicial = [
+    { nombres: 'Ricardo', apellidos: 'Palma Mendoza', correo: 'rpalma@santaelena.pe', telefono: '+51 980112233', rol: RolUsuario.AGRONOMO },
+    { nombres: 'Lucía', apellidos: 'Morales Soto', correo: 'lmorales@santaelena.pe', telefono: '+51 980223344', rol: RolUsuario.SUPERVISOR },
+  ];
+
+  for (const tec of personalTecnicoInicial) {
+    const existe = await prisma.usuario.findUnique({ where: { correo: tec.correo } });
+    if (!existe) {
+      await prisma.usuario.create({
+        data: {
+          nombres: tec.nombres,
+          apellidos: tec.apellidos,
+          correo: tec.correo,
+          telefono: tec.telefono,
+          passwordHash,
+          rol: tec.rol,
+          activo: true,
+        },
+      });
+      console.log(`Personal técnico creado: ${tec.nombres} ${tec.apellidos} (${tec.rol})`);
+    }
+  }
+
   // Operadores de campo para cuadrillas
   const operariosIniciales = [
     { nombres: 'Carlos', apellidos: 'Mendoza Quispe', correo: 'cmendoza@santaelena.pe', telefono: '+51 981112233' },
