@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { PrismaModule } from '@/prisma/prisma.module.js';
 import { CultivosController } from './presentation/controllers/cultivos.controller.js';
 import { ListarCultivosActivosCasoUso } from './application/use-cases/listar-cultivos-activos.caso-uso.js';
+import { ObtenerCultivoPorIdCasoUso } from './application/use-cases/obtener-cultivo-por-id.caso-uso.js';
 import { RegistrarCultivoCasoUso } from './application/use-cases/registrar-cultivo.caso-uso.js';
 import { ActualizarCultivoCasoUso } from './application/use-cases/actualizar-cultivo.caso-uso.js';
 import { EliminarCultivoCasoUso } from './application/use-cases/eliminar-cultivo.caso-uso.js';
@@ -16,6 +17,7 @@ import { PrismaCultivoRepository } from './infrastructure/repositories/prisma-cu
   controllers: [CultivosController],
   providers: [
     ListarCultivosActivosCasoUso,
+    ObtenerCultivoPorIdCasoUso,
     RegistrarCultivoCasoUso,
     ActualizarCultivoCasoUso,
     EliminarCultivoCasoUso,
@@ -24,6 +26,6 @@ import { PrismaCultivoRepository } from './infrastructure/repositories/prisma-cu
       useClass: PrismaCultivoRepository,
     },
   ],
-  exports: [CULTIVO_REPOSITORIO_PORT, ListarCultivosActivosCasoUso],
+  exports: [CULTIVO_REPOSITORIO_PORT, ListarCultivosActivosCasoUso, ObtenerCultivoPorIdCasoUso],
 })
 export class CultivosModule {}

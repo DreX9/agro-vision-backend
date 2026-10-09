@@ -33,6 +33,7 @@ describe('EliminarCultivoCasoUso', () => {
     const cultivo = new Cultivo({
       id,
       nombre: 'Cultivo Sin Uso',
+      variedadesDefault: [],
       activo: true,
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -67,6 +68,7 @@ describe('EliminarCultivoCasoUso', () => {
     const cultivo = new Cultivo({
       id,
       nombre: 'Palto con Lotes',
+      variedadesDefault: [],
       activo: true,
       createdAt: new Date(),
       updatedAt: new Date(),

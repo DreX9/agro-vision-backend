@@ -66,6 +66,7 @@ describe('RegistrarCultivoCasoUso', () => {
     const cultivoExistente = new Cultivo({
       id: '0192a6c0-0000-7000-8000-000000000001',
       nombre: 'Palto',
+      variedadesDefault: [],
       activo: true,
       createdAt: new Date(),
       updatedAt: new Date(),

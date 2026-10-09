@@ -93,6 +93,7 @@ export class PrismaActividadRepository implements IActividadRepositorio {
         { titulo: { contains: termino, mode: 'insensitive' } },
         { codigo: { contains: termino, mode: 'insensitive' } },
         { descripcion: { contains: termino, mode: 'insensitive' } },
+        { parcela: { nombre: { contains: termino, mode: 'insensitive' } } },
       ];
     }
     if (filtros?.parcelaId) where.parcelaId = filtros.parcelaId;

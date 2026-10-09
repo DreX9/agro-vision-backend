@@ -20,6 +20,7 @@ import { CultivoItemDto } from '../../application/dtos/cultivo-item.dto.js';
 import { RegistrarCultivoCommand } from '../../application/commands/registrar-cultivo.command.js';
 import { ActualizarCultivoCommand } from '../../application/commands/actualizar-cultivo.command.js';
 import { ListarCultivosActivosCasoUso } from '../../application/use-cases/listar-cultivos-activos.caso-uso.js';
+import { ObtenerCultivoPorIdCasoUso } from '../../application/use-cases/obtener-cultivo-por-id.caso-uso.js';
 import { RegistrarCultivoCasoUso } from '../../application/use-cases/registrar-cultivo.caso-uso.js';
 import { ActualizarCultivoCasoUso } from '../../application/use-cases/actualizar-cultivo.caso-uso.js';
 import { EliminarCultivoCasoUso } from '../../application/use-cases/eliminar-cultivo.caso-uso.js';
@@ -38,6 +39,7 @@ import {
 export class CultivosController {
   constructor(
     private readonly listarCultivosActivosCasoUso: ListarCultivosActivosCasoUso,
+    private readonly obtenerCultivoPorIdCasoUso: ObtenerCultivoPorIdCasoUso,
     private readonly registrarCultivoCasoUso: RegistrarCultivoCasoUso,
     private readonly actualizarCultivoCasoUso: ActualizarCultivoCasoUso,
     private readonly eliminarCultivoCasoUso: EliminarCultivoCasoUso,
@@ -51,6 +53,22 @@ export class CultivosController {
   @ApiResponse({ status: 200, description: 'Catálogo de cultivos activos', type: [CultivoItemDto] })
   async listar(): Promise<CultivoItemDto[]> {
     const resultado = await this.listarCultivosActivosCasoUso.ejecutar();
+    return resultado.value;
+  }
+
+  /**
+   * @description Obtiene los detalles de un cultivo específico por su ID.
+   */
+  @Get(':id')
+  @ApiOperation({ summary: 'Obtener cultivo por ID' })
+  @ApiParam({ name: 'id', description: 'Identificador UUID del cultivo' })
+  @ApiResponse({ status: 200, description: 'Detalle del cultivo', type: CultivoItemDto })
+  @ApiResponse({ status: 404, description: 'Cultivo no encontrado' })
+  async obtenerPorId(@Param('id') id: string): Promise<CultivoItemDto> {
+    const resultado = await this.obtenerCultivoPorIdCasoUso.ejecutar(id);
+    if (resultado.isFailure) {
+      throw new NotFoundException(resultado.error.message);
+    }
     return resultado.value;
   }
 

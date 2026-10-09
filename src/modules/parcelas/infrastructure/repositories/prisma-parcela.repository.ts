@@ -9,7 +9,7 @@ import {
 
 type PrismaParcelaConRelaciones = Prisma.ParcelaGetPayload<{
   include: {
-    cultivo: { select: { nombre: true } };
+    cultivo: { select: { nombre: true; colorHex: true } };
     usuarioResponsable: { select: { nombres: true; apellidos: true } };
   };
 }>;
@@ -33,6 +33,7 @@ export class PrismaParcelaRepository implements IParcelaRepositorio {
       areaHectareas: Number(r.areaHectareas),
       cultivoId: r.cultivoId,
       cultivoNombre: r.cultivo?.nombre,
+      cultivoColorHex: r.cultivo?.colorHex ?? null,
       variedad: r.variedad,
       usuarioResponsableId: r.usuarioResponsableId,
       usuarioResponsableNombre: responsableNombre,
@@ -61,6 +62,8 @@ export class PrismaParcelaRepository implements IParcelaRepositorio {
         { codigo: { contains: termino, mode: 'insensitive' } },
         { ubicacion: { contains: termino, mode: 'insensitive' } },
         { departamento: { contains: termino, mode: 'insensitive' } },
+        { provincia: { contains: termino, mode: 'insensitive' } },
+        { distrito: { contains: termino, mode: 'insensitive' } },
       ];
     }
 
@@ -87,7 +90,7 @@ export class PrismaParcelaRepository implements IParcelaRepositorio {
         take: limite,
         orderBy: { createdAt: 'desc' },
         include: {
-          cultivo: { select: { nombre: true } },
+          cultivo: { select: { nombre: true, colorHex: true } },
           usuarioResponsable: { select: { nombres: true, apellidos: true } },
         },
       }),
@@ -104,7 +107,7 @@ export class PrismaParcelaRepository implements IParcelaRepositorio {
     const registro = await this.prisma.parcela.findUnique({
       where: { id, deletedAt: null },
       include: {
-        cultivo: { select: { nombre: true } },
+        cultivo: { select: { nombre: true, colorHex: true } },
         usuarioResponsable: { select: { nombres: true, apellidos: true } },
       },
     });
@@ -118,7 +121,7 @@ export class PrismaParcelaRepository implements IParcelaRepositorio {
         deletedAt: null,
       },
       include: {
-        cultivo: { select: { nombre: true } },
+        cultivo: { select: { nombre: true, colorHex: true } },
         usuarioResponsable: { select: { nombres: true, apellidos: true } },
       },
     });
@@ -149,7 +152,7 @@ export class PrismaParcelaRepository implements IParcelaRepositorio {
     const registro = await this.prisma.parcela.create({
       data,
       include: {
-        cultivo: { select: { nombre: true } },
+        cultivo: { select: { nombre: true, colorHex: true } },
         usuarioResponsable: { select: { nombres: true, apellidos: true } },
       },
     });
@@ -184,7 +187,7 @@ export class PrismaParcelaRepository implements IParcelaRepositorio {
       where: { id: parcela.id },
       data,
       include: {
-        cultivo: { select: { nombre: true } },
+        cultivo: { select: { nombre: true, colorHex: true } },
         usuarioResponsable: { select: { nombres: true, apellidos: true } },
       },
     });
@@ -200,7 +203,7 @@ export class PrismaParcelaRepository implements IParcelaRepositorio {
         version: { increment: 1 },
       },
       include: {
-        cultivo: { select: { nombre: true } },
+        cultivo: { select: { nombre: true, colorHex: true } },
         usuarioResponsable: { select: { nombres: true, apellidos: true } },
       },
     });
