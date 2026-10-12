@@ -93,6 +93,7 @@ export class PrismaActividadRepository implements IActividadRepositorio {
         { titulo: { contains: termino, mode: 'insensitive' } },
         { codigo: { contains: termino, mode: 'insensitive' } },
         { descripcion: { contains: termino, mode: 'insensitive' } },
+        { parcela: { nombre: { contains: termino, mode: 'insensitive' } } },
       ];
     }
     if (filtros?.parcelaId) where.parcelaId = filtros.parcelaId;
@@ -160,6 +161,9 @@ export class PrismaActividadRepository implements IActividadRepositorio {
           create: trabajadores.map((t) => ({
             usuarioId: t.usuarioId,
             rolEnActividad: t.rolEnActividad ?? null,
+            horaInicio: t.horaInicio ?? null,
+            horaFin: t.horaFin ?? null,
+            horasAsignadas: t.horasAsignadas ?? null,
           })),
         },
         recursos: {
@@ -190,6 +194,9 @@ export class PrismaActividadRepository implements IActividadRepositorio {
             actividadId: actividad.id,
             usuarioId: t.usuarioId,
             rolEnActividad: t.rolEnActividad ?? null,
+            horaInicio: t.horaInicio ?? null,
+            horaFin: t.horaFin ?? null,
+            horasAsignadas: t.horasAsignadas ?? null,
           })),
         });
       }

@@ -14,6 +14,8 @@ import { INSUMO_REPOSITORIO_PORT } from './domain/ports/insumo-repositorio.port.
 import { PrismaActividadRepository } from './infrastructure/repositories/prisma-actividad.repository.js';
 import { PrismaInsumoRepository } from './infrastructure/repositories/prisma-insumo.repository.js';
 
+import { ValidadorDisponibilidadService } from './application/services/validador-disponibilidad.service.js';
+
 /**
  * @description Módulo de actividades agrícolas, cuadrillas e insumos para Agro Vision.
  */
@@ -21,6 +23,7 @@ import { PrismaInsumoRepository } from './infrastructure/repositories/prisma-ins
   imports: [PrismaModule],
   controllers: [ActividadesController, InsumosController],
   providers: [
+    ValidadorDisponibilidadService,
     ListarActividadesCasoUso,
     ObtenerActividadPorIdCasoUso,
     RegistrarActividadCasoUso,
@@ -38,6 +41,7 @@ import { PrismaInsumoRepository } from './infrastructure/repositories/prisma-ins
     },
   ],
   exports: [
+    ValidadorDisponibilidadService,
     ACTIVIDAD_REPOSITORIO_PORT,
     INSUMO_REPOSITORIO_PORT,
     ListarActividadesCasoUso,

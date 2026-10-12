@@ -9,6 +9,10 @@ enum TipoActividad {
   COSECHA
   DESHIERBE
   MANTENIMIENTO
+  MONITOREO_FITOSANITARIO
+  AUDITORIA_CALIDAD
+  SUPERVISION_TECNICA
+  GESTION_ADMINISTRATIVA
   OTRO
 
   @@map("tipos_actividad")
@@ -113,6 +117,12 @@ model ActividadTrabajador {
   usuario         Usuario           @relation("ActividadesTrabajador", fields: [usuarioId], references: [id], onDelete: Restrict)
 
   rolEnActividad  String?           @map("rol_en_actividad") @db.VarChar(100)
+
+  // Asignación de horario específico en la labor (si difiere o divide la jornada de la actividad)
+  horaInicio      DateTime?         @map("hora_inicio")
+  horaFin         DateTime?         @map("hora_fin")
+  horasAsignadas  Decimal?          @map("horas_asignadas") @db.Decimal(5, 2)
+
   createdAt       DateTime          @default(now()) @map("created_at")
 
   @@unique([actividadId, usuarioId])

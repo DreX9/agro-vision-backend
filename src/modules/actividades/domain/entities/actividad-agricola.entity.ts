@@ -7,6 +7,9 @@ export interface TrabajadorAsignadoProps {
   apellidos: string;
   rolEnActividad?: string | null;
   telefono?: string | null;
+  horaInicio?: Date | null;
+  horaFin?: Date | null;
+  horasAsignadas?: number | null;
 }
 
 export interface RecursoAsignadoProps {

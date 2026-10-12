@@ -25,3 +25,9 @@ export class InsumoNoEncontradoError extends ActividadError {
     super(`No se encontró el insumo agrícola con identificador ${id}.`);
   }
 }
+
+export class ConflictoDisponibilidadTrabajadorError extends ActividadError {
+  constructor(mensaje: string) {
+    super(mensaje);
+  }
+}

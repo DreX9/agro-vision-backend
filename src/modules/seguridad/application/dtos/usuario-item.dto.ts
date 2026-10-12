@@ -41,6 +41,18 @@ export class UsuarioItemDto {
   @ApiProperty({ example: 'Ica', required: false, description: 'Provincia' })
   provincia?: string | null;
 
+  @ApiProperty({ example: 'EMP-001', required: false, description: 'Código de empleado' })
+  codigoEmpleado?: string | null;
+
+  @ApiProperty({ example: '72345678', required: false, description: 'Número de documento de identidad' })
+  numeroDocumento?: string | null;
+
+  @ApiProperty({ example: 'PODADOR', required: false, description: 'Especialidad agrícola' })
+  especialidad?: string | null;
+
+  @ApiProperty({ example: 'Cuadrilla 1 - Poda', required: false, description: 'Cuadrilla de campo' })
+  cuadrilla?: string | null;
+
   @ApiProperty({ example: true, description: 'Estado de la cuenta' })
   activo: boolean;
 
@@ -63,6 +75,10 @@ export class UsuarioItemDto {
     dto.direccion = usuario.direccion;
     dto.departamento = usuario.departamento;
     dto.provincia = usuario.provincia;
+    dto.codigoEmpleado = usuario.codigoEmpleado;
+    dto.numeroDocumento = usuario.numeroDocumento;
+    dto.especialidad = usuario.especialidad;
+    dto.cuadrilla = usuario.cuadrilla;
     dto.activo = usuario.activo;
     dto.createdAt = usuario.createdAt;
     return dto;

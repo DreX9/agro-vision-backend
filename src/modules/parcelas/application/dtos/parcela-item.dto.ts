@@ -24,6 +24,9 @@ export class ParcelaItemDto {
   @ApiProperty({ description: 'Nombre del cultivo asignado', required: false })
   readonly cultivoNombre?: string;
 
+  @ApiProperty({ description: 'Color hexadecimal del cultivo asignado', required: false })
+  readonly cultivoColorHex?: string | null;
+
   @ApiProperty({ description: 'Variedad del cultivo', required: false })
   readonly variedad?: string | null;
 
@@ -70,6 +73,7 @@ export class ParcelaItemDto {
     this.areaHectareas = datos.areaHectareas;
     this.cultivoId = datos.cultivoId;
     this.cultivoNombre = datos.cultivoNombre;
+    this.cultivoColorHex = datos.cultivoColorHex;
     this.variedad = datos.variedad;
     this.usuarioResponsableId = datos.usuarioResponsableId;
     this.usuarioResponsableNombre = datos.usuarioResponsableNombre;
@@ -96,6 +100,7 @@ export class ParcelaItemDto {
       areaHectareas: parcela.areaHectareas,
       cultivoId: parcela.cultivoId,
       cultivoNombre: parcela.cultivoNombre,
+      cultivoColorHex: parcela.cultivoColorHex,
       variedad: parcela.variedad,
       usuarioResponsableId: parcela.usuarioResponsableId,
       usuarioResponsableNombre: parcela.usuarioResponsableNombre,
