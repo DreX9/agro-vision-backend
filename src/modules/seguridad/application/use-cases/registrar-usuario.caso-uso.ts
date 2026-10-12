@@ -47,6 +47,12 @@ export class RegistrarUsuarioCasoUso {
 
     const passwordHash = await this.hashingServicio.encriptar(comando.password);
 
+    let codigoEmpleado = comando.codigoEmpleado?.trim();
+    if (!codigoEmpleado) {
+      codigoEmpleado = await this.usuarioRepositorio.generarSiguienteCodigoEmpleado(comando.rol);
+      this.logger.log(`Código de empleado autogenerado para rol ${comando.rol}: ${codigoEmpleado}`);
+    }
+
     const nuevoUsuario = new Usuario({
       id: '', // Prisma genera UUIDv7 automáticamente
       nombres: comando.nombres.trim(),
@@ -60,6 +66,10 @@ export class RegistrarUsuarioCasoUso {
       direccion: comando.direccion?.trim() || null,
       departamento: comando.departamento?.trim() || null,
       provincia: comando.provincia?.trim() || null,
+      codigoEmpleado,
+      numeroDocumento: comando.numeroDocumento?.trim() || null,
+      especialidad: comando.especialidad || null,
+      cuadrilla: comando.cuadrilla?.trim() || null,
       activo: true,
       createdAt: new Date(),
       updatedAt: new Date(),

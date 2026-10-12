@@ -1,4 +1,5 @@
 import { RolUsuario, SexoUsuario } from '@prisma/client';
+import { EspecialidadAgricola } from '../../domain/entities/usuario.entity.js';
 
 /**
  * @description Comando con datos validados para la actualización de un usuario existente.
@@ -17,5 +18,9 @@ export class ActualizarUsuarioCommand {
     public readonly direccion?: string | null,
     public readonly departamento?: string | null,
     public readonly provincia?: string | null,
+    public readonly codigoEmpleado?: string | null,
+    public readonly numeroDocumento?: string | null,
+    public readonly especialidad?: EspecialidadAgricola | null,
+    public readonly cuadrilla?: string | null,
   ) {}
 }

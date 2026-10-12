@@ -25,7 +25,11 @@ describe('ActualizarActividadCasoUso', () => {
       contarTotal: vi.fn(),
     };
 
-    casoUso = new ActualizarActividadCasoUso(mockRepositorio);
+    const mockValidador = {
+      validar: vi.fn().mockResolvedValue({ esValido: true, conflictos: [] }),
+    } as any;
+
+    casoUso = new ActualizarActividadCasoUso(mockRepositorio, mockValidador);
   });
 
   it('debe actualizar los datos de la actividad exitosamente', async () => {

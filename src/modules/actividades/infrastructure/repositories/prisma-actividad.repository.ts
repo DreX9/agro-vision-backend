@@ -161,6 +161,9 @@ export class PrismaActividadRepository implements IActividadRepositorio {
           create: trabajadores.map((t) => ({
             usuarioId: t.usuarioId,
             rolEnActividad: t.rolEnActividad ?? null,
+            horaInicio: t.horaInicio ?? null,
+            horaFin: t.horaFin ?? null,
+            horasAsignadas: t.horasAsignadas ?? null,
           })),
         },
         recursos: {
@@ -191,6 +194,9 @@ export class PrismaActividadRepository implements IActividadRepositorio {
             actividadId: actividad.id,
             usuarioId: t.usuarioId,
             rolEnActividad: t.rolEnActividad ?? null,
+            horaInicio: t.horaInicio ?? null,
+            horaFin: t.horaFin ?? null,
+            horasAsignadas: t.horasAsignadas ?? null,
           })),
         });
       }

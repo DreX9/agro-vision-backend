@@ -8,6 +8,7 @@ import {
   MinLength,
 } from 'class-validator';
 import { RolUsuario, SexoUsuario } from '@prisma/client';
+import { EspecialidadAgricola } from '../../domain/entities/usuario.entity.js';
 
 /**
  * @description DTO de entrada para actualizar los datos de un usuario.
@@ -71,4 +72,28 @@ export class ActualizarUsuarioDto {
   @IsOptional()
   @IsString({ message: 'La provincia debe ser texto' })
   provincia?: string;
+
+  @ApiPropertyOptional({ description: 'Código único de empleado / fotocheck', example: 'EMP-001' })
+  @IsOptional()
+  @IsString({ message: 'El código de empleado debe ser texto' })
+  codigoEmpleado?: string;
+
+  @ApiPropertyOptional({ description: 'Número de documento de identidad (DNI/CE)', example: '72345678' })
+  @IsOptional()
+  @IsString({ message: 'El número de documento debe ser texto' })
+  numeroDocumento?: string;
+
+  @ApiPropertyOptional({
+    enum: EspecialidadAgricola,
+    description: 'Especialidad agrícola en campo',
+    example: EspecialidadAgricola.PODADOR,
+  })
+  @IsOptional()
+  @IsEnum(EspecialidadAgricola, { message: 'La especialidad seleccionada no es válida' })
+  especialidad?: EspecialidadAgricola;
+
+  @ApiPropertyOptional({ description: 'Nombre o código de la cuadrilla asignada', example: 'Cuadrilla 1 - Poda' })
+  @IsOptional()
+  @IsString({ message: 'La cuadrilla debe ser texto' })
+  cuadrilla?: string;
 }

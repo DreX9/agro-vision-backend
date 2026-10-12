@@ -36,7 +36,9 @@ import { EliminarActividadCasoUso } from '../../application/use-cases/eliminar-a
 import {
   ActividadCodigoYaExisteError,
   ActividadNoEncontradaError,
+  ConflictoDisponibilidadTrabajadorError,
 } from '../../domain/errors/actividad.errors.js';
+import { ValidadorDisponibilidadService } from '../../application/services/validador-disponibilidad.service.js';
 
 /**
  * @description Controlador REST para la gestión de actividades y labores de campo agrícolas.
@@ -52,7 +54,38 @@ export class ActividadesController {
     private readonly actualizarActividadCasoUso: ActualizarActividadCasoUso,
     private readonly actualizarEstadoActividadCasoUso: ActualizarEstadoActividadCasoUso,
     private readonly eliminarActividadCasoUso: EliminarActividadCasoUso,
+    private readonly validadorDisponibilidad: ValidadorDisponibilidadService,
   ) {}
+
+  @Post('validar-disponibilidad')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Verificar disponibilidad horaria y distancias de cuadrilla antes de guardar' })
+  async validarDisponibilidad(
+    @Body()
+    body: {
+      parcelaId: string;
+      fechaInicio: string;
+      fechaFin?: string;
+      trabajadores: {
+        usuarioId: string;
+        horaInicio?: string;
+        horaFin?: string;
+      }[];
+      excluirActividadId?: string;
+    },
+  ) {
+    return this.validadorDisponibilidad.validar(
+      body.parcelaId,
+      new Date(body.fechaInicio),
+      body.fechaFin ? new Date(body.fechaFin) : undefined,
+      body.trabajadores.map((t) => ({
+        usuarioId: t.usuarioId,
+        horaInicio: t.horaInicio ? new Date(t.horaInicio) : undefined,
+        horaFin: t.horaFin ? new Date(t.horaFin) : undefined,
+      })),
+      body.excluirActividadId,
+    );
+  }
 
   @Get()
   @ApiOperation({ summary: 'Listar actividades agrícolas con filtros y paginación' })
@@ -103,7 +136,13 @@ export class ActividadesController {
       dto.descripcion,
       dto.observaciones,
       dto.estado,
-      dto.trabajadores?.map((t) => ({ usuarioId: t.usuarioId, rolEnActividad: t.rolEnActividad })) || [],
+      dto.trabajadores?.map((t) => ({
+        usuarioId: t.usuarioId,
+        rolEnActividad: t.rolEnActividad,
+        horaInicio: t.horaInicio ? new Date(t.horaInicio) : undefined,
+        horaFin: t.horaFin ? new Date(t.horaFin) : undefined,
+        horasAsignadas: t.horasAsignadas,
+      })) || [],
       dto.recursos?.map((r) => ({
         insumoId: r.insumoId,
         cantidadEstimada: r.cantidadEstimada,
@@ -115,7 +154,10 @@ export class ActividadesController {
     const resultado = await this.registrarActividadCasoUso.ejecutar(comando);
     if (resultado.isFailure) {
       const error = resultado.error;
-      if (error instanceof ActividadCodigoYaExisteError) {
+      if (
+        error instanceof ActividadCodigoYaExisteError ||
+        error instanceof ConflictoDisponibilidadTrabajadorError
+      ) {
         throw new ConflictException(error.message);
       }
       throw new BadRequestException(error.message);
@@ -128,6 +170,7 @@ export class ActividadesController {
   @ApiOperation({ summary: 'Actualizar una actividad agrícola existente' })
   @ApiResponse({ status: 200, description: 'Actividad actualizada exitosamente', type: ActividadDetalleDto })
   @ApiResponse({ status: 404, description: 'Actividad no encontrada' })
+  @ApiResponse({ status: 409, description: 'Conflicto de disponibilidad o traslados' })
   async actualizar(
     @Param('id') id: string,
     @Body() dto: ActualizarActividadDto,
@@ -143,7 +186,13 @@ export class ActividadesController {
       dto.descripcion,
       dto.observaciones,
       dto.estado,
-      dto.trabajadores?.map((t) => ({ usuarioId: t.usuarioId, rolEnActividad: t.rolEnActividad })),
+      dto.trabajadores?.map((t) => ({
+        usuarioId: t.usuarioId,
+        rolEnActividad: t.rolEnActividad,
+        horaInicio: t.horaInicio ? new Date(t.horaInicio) : undefined,
+        horaFin: t.horaFin ? new Date(t.horaFin) : undefined,
+        horasAsignadas: t.horasAsignadas,
+      })),
       dto.recursos?.map((r) => ({
         insumoId: r.insumoId,
         cantidadEstimada: r.cantidadEstimada,
@@ -157,6 +206,9 @@ export class ActividadesController {
       const error = resultado.error;
       if (error instanceof ActividadNoEncontradaError) {
         throw new NotFoundException(error.message);
+      }
+      if (error instanceof ConflictoDisponibilidadTrabajadorError) {
+        throw new ConflictException(error.message);
       }
       throw new BadRequestException(error.message);
     }

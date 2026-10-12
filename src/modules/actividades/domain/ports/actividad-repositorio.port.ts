@@ -15,6 +15,9 @@ export interface FiltrosListarActividades {
 export interface TrabajadorEntrada {
   usuarioId: string;
   rolEnActividad?: string;
+  horaInicio?: Date | null;
+  horaFin?: Date | null;
+  horasAsignadas?: number | null;
 }
 
 export interface RecursoEntrada {

@@ -11,7 +11,9 @@ import { ActividadAgricola } from '../../domain/entities/actividad-agricola.enti
 import {
   ActividadError,
   ActividadCodigoYaExisteError,
+  ConflictoDisponibilidadTrabajadorError,
 } from '../../domain/errors/actividad.errors.js';
+import { ValidadorDisponibilidadService } from '../services/validador-disponibilidad.service.js';
 
 /**
  * @description Caso de uso para registrar una nueva actividad agrícola con cuadrilla e insumos.
@@ -23,11 +25,31 @@ export class RegistrarActividadCasoUso {
   constructor(
     @Inject(ACTIVIDAD_REPOSITORIO_PORT)
     private readonly actividadRepositorio: IActividadRepositorio,
+    private readonly validadorDisponibilidad: ValidadorDisponibilidadService,
   ) {}
 
   async ejecutar(
     comando: RegistrarActividadCommand,
   ): Promise<Result<ActividadDetalleDto, ActividadError>> {
+    // Validar disponibilidad horaria y tiempos de traslado entre parcelas para cada trabajador
+    if (comando.trabajadores && comando.trabajadores.length > 0) {
+      const validacion = await this.validadorDisponibilidad.validar(
+        comando.parcelaId,
+        comando.fechaInicio,
+        comando.fechaFin,
+        comando.trabajadores.map((t) => ({
+          usuarioId: t.usuarioId,
+          horaInicio: t.horaInicio,
+          horaFin: t.horaFin,
+        })),
+      );
+
+      if (!validacion.esValido && validacion.conflictos.length > 0) {
+        const primerConflicto = validacion.conflictos[0];
+        this.logger.warn(`Conflicto de disponibilidad detectado: ${primerConflicto.mensaje}`);
+        return Result.fail(new ConflictoDisponibilidadTrabajadorError(primerConflicto.mensaje));
+      }
+    }
     let codigo = comando.codigo?.trim().toUpperCase();
 
     if (!codigo) {

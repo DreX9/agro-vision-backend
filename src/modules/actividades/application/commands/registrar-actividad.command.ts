@@ -3,6 +3,9 @@ import { TipoActividad, EstadoActividad } from '@prisma/client';
 export interface TrabajadorAsignarComando {
   usuarioId: string;
   rolEnActividad?: string;
+  horaInicio?: Date;
+  horaFin?: Date;
+  horasAsignadas?: number;
 }
 
 export interface RecursoAsignarComando {

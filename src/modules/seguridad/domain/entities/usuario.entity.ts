@@ -1,5 +1,15 @@
 import { RolUsuario, SexoUsuario } from '@prisma/client';
 
+export enum EspecialidadAgricola {
+  GENERAL = 'GENERAL',
+  PODADOR = 'PODADOR',
+  FUMIGADOR_APLICADOR = 'FUMIGADOR_APLICADOR',
+  REGADOR = 'REGADOR',
+  TRACTORISTA_MAQUINISTA = 'TRACTORISTA_MAQUINISTA',
+  COSECHADOR = 'COSECHADOR',
+  INJERTADOR = 'INJERTADOR',
+}
+
 export interface UsuarioProps {
   id: string;
   nombres: string;
@@ -11,6 +21,10 @@ export interface UsuarioProps {
   sexo?: SexoUsuario | null;
   fechaNacimiento?: Date | null;
   direccion?: string | null;
+  codigoEmpleado?: string | null;
+  numeroDocumento?: string | null;
+  especialidad?: EspecialidadAgricola | null;
+  cuadrilla?: string | null;
   departamento?: string | null;
   provincia?: string | null;
   activo: boolean;
@@ -70,6 +84,22 @@ export class Usuario {
 
   get direccion(): string | null | undefined {
     return this.props.direccion;
+  }
+
+  get codigoEmpleado(): string | null | undefined {
+    return this.props.codigoEmpleado;
+  }
+
+  get numeroDocumento(): string | null | undefined {
+    return this.props.numeroDocumento;
+  }
+
+  get especialidad(): EspecialidadAgricola | null | undefined {
+    return this.props.especialidad;
+  }
+
+  get cuadrilla(): string | null | undefined {
+    return this.props.cuadrilla;
   }
 
   get departamento(): string | null | undefined {

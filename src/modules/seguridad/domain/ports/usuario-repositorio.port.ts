@@ -21,5 +21,6 @@ export interface IUsuarioRepositorio {
   actualizar(usuario: Usuario): Promise<Usuario | null>;
   actualizarEstado(id: string, activo: boolean): Promise<Usuario | null>;
   eliminar(id: string): Promise<boolean>;
+  generarSiguienteCodigoEmpleado(rol: string): Promise<string>;
 }
 
