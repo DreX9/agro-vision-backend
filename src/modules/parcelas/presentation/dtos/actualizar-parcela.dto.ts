@@ -31,6 +31,12 @@ export class ActualizarParcelaDto {
   @IsUUID('all', { message: 'El identificador del cultivo debe ser un UUID válido' })
   readonly cultivoId?: string;
 
+  @ApiPropertyOptional({ description: 'Color distintivo hexadecimal para el mapa' })
+  @IsOptional()
+  @IsString({ message: 'El color debe ser una cadena de texto' })
+  @MaxLength(7, { message: 'El código de color no puede superar los 7 caracteres' })
+  readonly colorHex?: string;
+
   @ApiPropertyOptional({ description: 'Variedad del cultivo' })
   @IsOptional()
   @IsString({ message: 'La variedad debe ser una cadena de texto' })

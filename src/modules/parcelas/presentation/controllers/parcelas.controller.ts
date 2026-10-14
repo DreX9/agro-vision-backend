@@ -113,6 +113,8 @@ export class ParcelasController {
       dto.delimitacionGeoJson,
       dto.latitudCentro,
       dto.longitudCentro,
+      undefined,
+      dto.colorHex,
     );
 
     const resultado = await this.registrarParcelaCasoUso.ejecutar(comando);
@@ -153,6 +155,8 @@ export class ParcelasController {
       dto.delimitacionGeoJson,
       dto.latitudCentro,
       dto.longitudCentro,
+      undefined,
+      dto.colorHex,
     );
 
     const resultado = await this.actualizarParcelaCasoUso.ejecutar(comando);
@@ -160,6 +164,9 @@ export class ParcelasController {
       const error = resultado.error;
       if (error instanceof ParcelaNoEncontradaError) {
         throw new NotFoundException(error.message);
+      }
+      if (error instanceof ParcelaCodigoYaExisteError) {
+        throw new ConflictException(error.message);
       }
       throw new BadRequestException(error.message);
     }

@@ -10,6 +10,7 @@ import { Parcela } from '../../domain/entities/parcela.entity.js';
 import {
   ParcelaError,
   ParcelaNoEncontradaError,
+  ParcelaCodigoYaExisteError,
 } from '../../domain/errors/parcela.errors.js';
 
 /**
@@ -40,6 +41,7 @@ export class ActualizarParcelaCasoUso {
       codigo: parcelaExistente.codigo,
       nombre: comando.nombre ? comando.nombre.trim() : parcelaExistente.nombre,
       areaHectareas: comando.areaHectareas ?? parcelaExistente.areaHectareas,
+      colorHex: comando.colorHex !== undefined ? comando.colorHex : parcelaExistente.colorHex,
       cultivoId: comando.cultivoId ?? parcelaExistente.cultivoId,
       variedad: comando.variedad !== undefined ? comando.variedad : parcelaExistente.variedad,
       usuarioResponsableId:
@@ -69,11 +71,17 @@ export class ActualizarParcelaCasoUso {
       updatedAt: new Date(),
     });
 
-    const guardada = await this.parcelaRepositorio.actualizar(parcelaActualizada);
-    if (!guardada) {
-      return Result.fail(new ParcelaNoEncontradaError(comando.id));
+    try {
+      const guardada = await this.parcelaRepositorio.actualizar(parcelaActualizada);
+      if (!guardada) {
+        return Result.fail(new ParcelaNoEncontradaError(comando.id));
+      }
+      return Result.ok(ParcelaItemDto.desdeEntidad(guardada));
+    } catch (error) {
+      if (error instanceof ParcelaCodigoYaExisteError) {
+        return Result.fail(error);
+      }
+      throw error;
     }
-
-    return Result.ok(ParcelaItemDto.desdeEntidad(guardada));
   }
 }

@@ -42,13 +42,22 @@ export class CrearParcelaDto {
   @IsPositive({ message: 'El área debe ser un número positivo mayor a 0' })
   readonly areaHectareas!: number;
 
-  @ApiProperty({
-    description: 'Identificador UUID del cultivo',
+  @ApiPropertyOptional({
+    description: 'Identificador UUID del cultivo (opcional en fase de delimitación)',
     example: '018f9c10-8b9a-7a2e-8e39-16a3f9e9d123',
   })
-  @IsNotEmpty({ message: 'El cultivo es obligatorio' })
+  @IsOptional()
   @IsUUID('all', { message: 'El identificador del cultivo debe ser un UUID válido' })
-  readonly cultivoId!: string;
+  readonly cultivoId?: string;
+
+  @ApiPropertyOptional({
+    description: 'Color distintivo hexadecimal para el lote en el mapa',
+    example: '#15803D',
+  })
+  @IsOptional()
+  @IsString({ message: 'El color debe ser una cadena de texto' })
+  @MaxLength(7, { message: 'El código de color no puede superar los 7 caracteres' })
+  readonly colorHex?: string;
 
   @ApiPropertyOptional({
     description: 'Variedad específica del cultivo',

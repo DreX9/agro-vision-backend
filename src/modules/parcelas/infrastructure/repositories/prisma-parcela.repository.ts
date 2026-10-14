@@ -6,6 +6,7 @@ import {
   type IParcelaRepositorio,
   type FiltrosListarParcelas,
 } from '../../domain/ports/parcela-repositorio.port.js';
+import { ParcelaCodigoYaExisteError } from '../../domain/errors/parcela.errors.js';
 
 type PrismaParcelaConRelaciones = Prisma.ParcelaGetPayload<{
   include: {
@@ -31,9 +32,10 @@ export class PrismaParcelaRepository implements IParcelaRepositorio {
       codigo: r.codigo,
       nombre: r.nombre,
       areaHectareas: Number(r.areaHectareas),
+      colorHex: r.colorHex ?? r.cultivo?.colorHex ?? '#15803D',
       cultivoId: r.cultivoId,
       cultivoNombre: r.cultivo?.nombre,
-      cultivoColorHex: r.cultivo?.colorHex ?? null,
+      cultivoColorHex: r.colorHex ?? r.cultivo?.colorHex ?? '#15803D',
       variedad: r.variedad,
       usuarioResponsableId: r.usuarioResponsableId,
       usuarioResponsableNombre: responsableNombre,
@@ -133,6 +135,7 @@ export class PrismaParcelaRepository implements IParcelaRepositorio {
       codigo: parcela.codigo,
       nombre: parcela.nombre,
       areaHectareas: parcela.areaHectareas,
+      colorHex: parcela.colorHex ?? '#15803D',
       variedad: parcela.variedad ?? null,
       ubicacion: parcela.ubicacion ?? null,
       departamento: parcela.departamento ?? null,
@@ -142,28 +145,54 @@ export class PrismaParcelaRepository implements IParcelaRepositorio {
       delimitacionGeoJson: (parcela.delimitacionGeoJson as Prisma.InputJsonValue) ?? Prisma.JsonNull,
       latitudCentro: parcela.latitudCentro ?? null,
       longitudCentro: parcela.longitudCentro ?? null,
-      cultivo: { connect: { id: parcela.cultivoId } },
     };
 
-    if (parcela.usuarioResponsableId) {
-      data.usuarioResponsable = { connect: { id: parcela.usuarioResponsableId } };
+    if (parcela.cultivoId) {
+      const cultivoExiste = await this.prisma.cultivo.findUnique({
+        where: { id: parcela.cultivoId },
+        select: { id: true },
+      });
+      if (cultivoExiste) {
+        data.cultivo = { connect: { id: parcela.cultivoId } };
+      }
     }
 
-    const registro = await this.prisma.parcela.create({
-      data,
-      include: {
-        cultivo: { select: { nombre: true, colorHex: true } },
-        usuarioResponsable: { select: { nombres: true, apellidos: true } },
-      },
-    });
+    if (parcela.usuarioResponsableId) {
+      const usuarioExiste = await this.prisma.usuario.findUnique({
+        where: { id: parcela.usuarioResponsableId },
+        select: { id: true },
+      });
+      if (usuarioExiste) {
+        data.usuarioResponsable = { connect: { id: parcela.usuarioResponsableId } };
+      }
+    }
 
-    return this.mapearAEntidad(registro);
+    try {
+      const registro = await this.prisma.parcela.create({
+        data,
+        include: {
+          cultivo: { select: { nombre: true, colorHex: true } },
+          usuarioResponsable: { select: { nombres: true, apellidos: true } },
+        },
+      });
+
+      return this.mapearAEntidad(registro);
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2002'
+      ) {
+        throw new ParcelaCodigoYaExisteError(parcela.codigo);
+      }
+      throw error;
+    }
   }
 
   async actualizar(parcela: Parcela): Promise<Parcela | null> {
     const data: Prisma.ParcelaUpdateInput = {
       nombre: parcela.nombre,
       areaHectareas: parcela.areaHectareas,
+      colorHex: parcela.colorHex ?? undefined,
       variedad: parcela.variedad ?? null,
       ubicacion: parcela.ubicacion ?? null,
       departamento: parcela.departamento ?? null,
@@ -173,26 +202,57 @@ export class PrismaParcelaRepository implements IParcelaRepositorio {
       delimitacionGeoJson: (parcela.delimitacionGeoJson as Prisma.InputJsonValue) ?? Prisma.JsonNull,
       latitudCentro: parcela.latitudCentro ?? null,
       longitudCentro: parcela.longitudCentro ?? null,
-      cultivo: { connect: { id: parcela.cultivoId } },
       version: { increment: 1 },
     };
 
+    if (parcela.cultivoId) {
+      const cultivoExiste = await this.prisma.cultivo.findUnique({
+        where: { id: parcela.cultivoId },
+        select: { id: true },
+      });
+      if (cultivoExiste) {
+        data.cultivo = { connect: { id: parcela.cultivoId } };
+      } else {
+        data.cultivo = { disconnect: true };
+      }
+    } else if (parcela.cultivoId === null) {
+      data.cultivo = { disconnect: true };
+    }
+
     if (parcela.usuarioResponsableId) {
-      data.usuarioResponsable = { connect: { id: parcela.usuarioResponsableId } };
+      const usuarioExiste = await this.prisma.usuario.findUnique({
+        where: { id: parcela.usuarioResponsableId },
+        select: { id: true },
+      });
+      if (usuarioExiste) {
+        data.usuarioResponsable = { connect: { id: parcela.usuarioResponsableId } };
+      } else {
+        data.usuarioResponsable = { disconnect: true };
+      }
     } else {
       data.usuarioResponsable = { disconnect: true };
     }
 
-    const registro = await this.prisma.parcela.update({
-      where: { id: parcela.id },
-      data,
-      include: {
-        cultivo: { select: { nombre: true, colorHex: true } },
-        usuarioResponsable: { select: { nombres: true, apellidos: true } },
-      },
-    });
+    try {
+      const registro = await this.prisma.parcela.update({
+        where: { id: parcela.id },
+        data,
+        include: {
+          cultivo: { select: { nombre: true, colorHex: true } },
+          usuarioResponsable: { select: { nombres: true, apellidos: true } },
+        },
+      });
 
-    return this.mapearAEntidad(registro);
+      return this.mapearAEntidad(registro);
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2002'
+      ) {
+        throw new ParcelaCodigoYaExisteError(parcela.codigo);
+      }
+      throw error;
+    }
   }
 
   async actualizarEstado(id: string, estado: string): Promise<Parcela | null> {
@@ -212,9 +272,19 @@ export class PrismaParcelaRepository implements IParcelaRepositorio {
   }
 
   async eliminar(id: string): Promise<boolean> {
+    const registro = await this.prisma.parcela.findUnique({
+      where: { id },
+      select: { codigo: true },
+    });
+    if (!registro) return false;
+
+    const sufijo = `__del_${Date.now()}`;
+    const codigoLiberado = `${registro.codigo.slice(0, 50 - sufijo.length)}${sufijo}`;
+
     await this.prisma.parcela.update({
       where: { id },
       data: {
+        codigo: codigoLiberado,
         deletedAt: new Date(),
         version: { increment: 1 },
       },
@@ -223,6 +293,8 @@ export class PrismaParcelaRepository implements IParcelaRepositorio {
   }
 
   async contarTotal(): Promise<number> {
-    return this.prisma.parcela.count();
+    return this.prisma.parcela.count({
+      where: { deletedAt: null },
+    });
   }
 }
