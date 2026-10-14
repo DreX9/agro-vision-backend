@@ -17,9 +17,12 @@ model Parcela {
   nombre               String        @map("nombre") @db.VarChar(150)
   areaHectareas        Decimal       @map("area_hectareas") @db.Decimal(10, 4)
   
-  // Relación con Cultivo
-  cultivoId            String        @map("cultivo_id") @db.Uuid
-  cultivo              Cultivo       @relation(fields: [cultivoId], references: [id], onDelete: Restrict)
+  // Color distintivo del lote en el mapa (asignado incrementalmente según código)
+  colorHex             String?       @default("#15803D") @map("color_hex") @db.VarChar(7)
+
+  // Relación opcional con Cultivo (se asigna posteriormente en sección de cultivos por área)
+  cultivoId            String?       @map("cultivo_id") @db.Uuid
+  cultivo              Cultivo?      @relation(fields: [cultivoId], references: [id], onDelete: SetNull)
   variedad             String?       @map("variedad") @db.VarChar(100)
   
   // Relación con Responsable (Capataz / Ingeniero)

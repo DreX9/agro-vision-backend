@@ -5,9 +5,10 @@ export interface ParcelaProps {
   codigo: string;
   nombre: string;
   areaHectareas: number;
-  cultivoId: string;
-  cultivoNombre?: string;
+  cultivoId?: string | null;
+  cultivoNombre?: string | null;
   cultivoColorHex?: string | null;
+  colorHex?: string | null;
   variedad?: string | null;
   usuarioResponsableId?: string | null;
   usuarioResponsableNombre?: string | null;
@@ -49,16 +50,20 @@ export class Parcela {
     return this.props.areaHectareas;
   }
 
-  get cultivoId(): string {
+  get cultivoId(): string | null | undefined {
     return this.props.cultivoId;
   }
 
-  get cultivoNombre(): string | undefined {
+  get cultivoNombre(): string | null | undefined {
     return this.props.cultivoNombre;
   }
 
   get cultivoColorHex(): string | null | undefined {
     return this.props.cultivoColorHex;
+  }
+
+  get colorHex(): string | null | undefined {
+    return this.props.colorHex;
   }
 
   get variedad(): string | null | undefined {

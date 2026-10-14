@@ -18,11 +18,14 @@ export class ParcelaItemDto {
   @ApiProperty({ description: 'Área calculada o ingresada en hectáreas (ha)' })
   readonly areaHectareas: number;
 
-  @ApiProperty({ description: 'Identificador del cultivo asignado' })
-  readonly cultivoId: string;
+  @ApiProperty({ description: 'Identificador del cultivo asignado', required: false })
+  readonly cultivoId?: string | null;
 
   @ApiProperty({ description: 'Nombre del cultivo asignado', required: false })
-  readonly cultivoNombre?: string;
+  readonly cultivoNombre?: string | null;
+
+  @ApiProperty({ description: 'Color distintivo asignado al lote', required: false })
+  readonly colorHex?: string | null;
 
   @ApiProperty({ description: 'Color hexadecimal del cultivo asignado', required: false })
   readonly cultivoColorHex?: string | null;
@@ -71,9 +74,10 @@ export class ParcelaItemDto {
     this.codigo = datos.codigo;
     this.nombre = datos.nombre;
     this.areaHectareas = datos.areaHectareas;
-    this.cultivoId = datos.cultivoId;
-    this.cultivoNombre = datos.cultivoNombre;
-    this.cultivoColorHex = datos.cultivoColorHex;
+    this.cultivoId = datos.cultivoId ?? null;
+    this.cultivoNombre = datos.cultivoNombre ?? null;
+    this.colorHex = datos.colorHex ?? datos.cultivoColorHex ?? '#15803D';
+    this.cultivoColorHex = datos.colorHex ?? datos.cultivoColorHex ?? '#15803D';
     this.variedad = datos.variedad;
     this.usuarioResponsableId = datos.usuarioResponsableId;
     this.usuarioResponsableNombre = datos.usuarioResponsableNombre;
@@ -93,14 +97,16 @@ export class ParcelaItemDto {
    * @description Mapea una entidad de dominio a su representación DTO.
    */
   static desdeEntidad(parcela: Parcela): ParcelaItemDto {
+    const colorDistintivo = parcela.colorHex ?? parcela.cultivoColorHex ?? '#15803D';
     return new ParcelaItemDto({
       id: parcela.id,
       codigo: parcela.codigo,
       nombre: parcela.nombre,
       areaHectareas: parcela.areaHectareas,
-      cultivoId: parcela.cultivoId,
-      cultivoNombre: parcela.cultivoNombre,
-      cultivoColorHex: parcela.cultivoColorHex,
+      cultivoId: parcela.cultivoId ?? null,
+      cultivoNombre: parcela.cultivoNombre ?? null,
+      colorHex: colorDistintivo,
+      cultivoColorHex: colorDistintivo,
       variedad: parcela.variedad,
       usuarioResponsableId: parcela.usuarioResponsableId,
       usuarioResponsableNombre: parcela.usuarioResponsableNombre,
