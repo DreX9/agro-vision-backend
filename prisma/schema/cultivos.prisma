@@ -10,6 +10,7 @@ model Cultivo {
 
   // Relaciones
   parcelas           Parcela[]
+  sectores           SectorParcela[]
 
   // Auditoría Universal
   createdAt          DateTime  @default(now()) @map("created_at")
