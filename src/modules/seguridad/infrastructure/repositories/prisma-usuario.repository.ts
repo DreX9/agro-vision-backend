@@ -15,6 +15,7 @@ export class PrismaUsuarioRepository implements IUsuarioRepositorio {
   constructor(private readonly prisma: PrismaService) {}
 
   private mapearAEntidad(registro: PrismaUsuario): Usuario {
+    const raw = registro as Record<string, any>;
     return new Usuario({
       id: registro.id,
       nombres: registro.nombres,
@@ -26,6 +27,10 @@ export class PrismaUsuarioRepository implements IUsuarioRepositorio {
       sexo: registro.sexo,
       fechaNacimiento: registro.fechaNacimiento,
       direccion: registro.direccion,
+      codigoEmpleado: raw.codigoEmpleado ?? null,
+      numeroDocumento: raw.numeroDocumento ?? null,
+      especialidad: raw.especialidad ?? null,
+      cuadrilla: raw.cuadrilla ?? null,
       departamento: registro.departamento,
       provincia: registro.provincia,
       activo: registro.activo,
@@ -129,7 +134,11 @@ export class PrismaUsuarioRepository implements IUsuarioRepositorio {
         departamento: usuario.departamento,
         provincia: usuario.provincia,
         activo: usuario.activo,
-      },
+        ...(usuario.codigoEmpleado ? { codigoEmpleado: usuario.codigoEmpleado } : {}),
+        ...(usuario.numeroDocumento ? { numeroDocumento: usuario.numeroDocumento } : {}),
+        ...(usuario.especialidad ? { especialidad: usuario.especialidad as any } : {}),
+        ...(usuario.cuadrilla ? { cuadrilla: usuario.cuadrilla } : {}),
+      } as any,
     });
 
     return this.mapearAEntidad(registro);
@@ -155,7 +164,11 @@ export class PrismaUsuarioRepository implements IUsuarioRepositorio {
           departamento: usuario.departamento,
           provincia: usuario.provincia,
           activo: usuario.activo,
-        },
+          codigoEmpleado: usuario.codigoEmpleado ?? null,
+          numeroDocumento: usuario.numeroDocumento ?? null,
+          especialidad: (usuario.especialidad as any) ?? null,
+          cuadrilla: usuario.cuadrilla ?? null,
+        } as any,
       });
       return this.mapearAEntidad(registro);
     } catch {
@@ -191,6 +204,40 @@ export class PrismaUsuarioRepository implements IUsuarioRepositorio {
     } catch {
       return false;
     }
+  }
+
+  /**
+   * @description Genera el código correlativo de empleado según su rol funcional (OP-001, AD-001, AG-001, SU-001).
+   */
+  async generarSiguienteCodigoEmpleado(rol: string): Promise<string> {
+    const prefijos: Record<string, string> = {
+      ADMINISTRADOR: 'AD',
+      AGRONOMO: 'AG',
+      SUPERVISOR: 'SU',
+      OPERADOR: 'OP',
+    };
+    const prefijo = prefijos[rol] || 'EM';
+
+    const usuariosConPrefijo = await this.prisma.usuario.findMany({
+      where: {
+        codigoEmpleado: { startsWith: `${prefijo}-` },
+      },
+      select: { codigoEmpleado: true },
+    });
+
+    let maxNumero = 0;
+    for (const u of usuariosConPrefijo) {
+      if (u.codigoEmpleado) {
+        const parteNumerica = u.codigoEmpleado.replace(`${prefijo}-`, '');
+        const num = parseInt(parteNumerica, 10);
+        if (!isNaN(num) && num > maxNumero) {
+          maxNumero = num;
+        }
+      }
+    }
+
+    const siguiente = maxNumero + 1;
+    return `${prefijo}-${String(siguiente).padStart(3, '0')}`;
   }
 }
 

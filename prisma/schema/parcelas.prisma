@@ -17,15 +17,19 @@ model Parcela {
   nombre               String        @map("nombre") @db.VarChar(150)
   areaHectareas        Decimal       @map("area_hectareas") @db.Decimal(10, 4)
   
-  // Relación con Cultivo
-  cultivoId            String        @map("cultivo_id") @db.Uuid
-  cultivo              Cultivo       @relation(fields: [cultivoId], references: [id], onDelete: Restrict)
+  // Color distintivo del lote en el mapa (asignado incrementalmente según código)
+  colorHex             String?       @default("#15803D") @map("color_hex") @db.VarChar(7)
+
+  // Relación opcional con Cultivo (se asigna posteriormente en sección de cultivos por área)
+  cultivoId            String?       @map("cultivo_id") @db.Uuid
+  cultivo              Cultivo?      @relation(fields: [cultivoId], references: [id], onDelete: SetNull)
   variedad             String?       @map("variedad") @db.VarChar(100)
   
   // Relación con Responsable (Capataz / Ingeniero)
   usuarioResponsableId String?              @map("usuario_responsable_id") @db.Uuid
   usuarioResponsable   Usuario?             @relation(fields: [usuarioResponsableId], references: [id], onDelete: Restrict)
   actividades          ActividadAgricola[]
+  sectores             SectorParcela[]
   
   // Ubicación territorial
   ubicacion            String?       @map("ubicacion") @db.VarChar(255)
@@ -50,7 +54,48 @@ model Parcela {
 
   @@index([cultivoId])
   @@index([usuarioResponsableId])
-  @@index([codigo])
   @@map("parcelas")
+  @@schema("parcelas")
+}
+
+model SectorParcela {
+  id                   String        @id @default(uuid(7)) @db.Uuid
+  codigo               String        @map("codigo") @db.VarChar(50)
+  nombre               String        @map("nombre") @db.VarChar(150)
+  areaHectareas        Decimal       @map("area_hectareas") @db.Decimal(10, 4)
+  colorHex             String?       @map("color_hex") @db.VarChar(7)
+
+  // Parcela Matriz a la que pertenece
+  parcelaId            String        @map("parcela_id") @db.Uuid
+  parcela              Parcela       @relation(fields: [parcelaId], references: [id], onDelete: Cascade)
+
+  // Cultivo asignado
+  cultivoId            String        @map("cultivo_id") @db.Uuid
+  cultivo              Cultivo       @relation(fields: [cultivoId], references: [id], onDelete: Restrict)
+  variedad             String?       @map("variedad") @db.VarChar(100)
+
+  // Delimitación espacial del sector (puntos del polígono)
+  delimitacionGeoJson  Json          @map("delimitacion_geo_json")
+  latitudCentro        Decimal?      @map("latitud_centro") @db.Decimal(11, 8)
+  longitudCentro       Decimal?      @map("longitud_centro") @db.Decimal(11, 8)
+
+  // Fechas agronómicas
+  fechaSiembra         DateTime?     @map("fecha_siembra")
+  fechaCosechaEstimada DateTime?     @map("fecha_cosecha_estimada")
+
+  estado               EstadoParcela @default(ACTIVA) @map("estado")
+
+  // Auditoría Universal
+  createdAt            DateTime      @default(now()) @map("created_at")
+  createdBy            String?       @map("created_by") @db.Uuid
+  updatedAt            DateTime      @updatedAt @map("updated_at")
+  updatedBy            String?       @map("updated_by") @db.Uuid
+  deletedAt            DateTime?     @map("deleted_at")
+  version              Int           @default(1) @map("version")
+
+  @@unique([parcelaId, codigo])
+  @@index([parcelaId])
+  @@index([cultivoId])
+  @@map("sectores_parcela")
   @@schema("parcelas")
 }

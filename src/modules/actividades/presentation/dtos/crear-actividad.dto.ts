@@ -25,6 +25,21 @@ export class AsignarTrabajadorDto {
   @IsOptional()
   @IsString({ message: 'El rol debe ser una cadena de texto' })
   readonly rolEnActividad?: string;
+
+  @ApiPropertyOptional({ description: 'Hora de inicio específica del operario (ISO 8601)' })
+  @IsOptional()
+  @IsDateString({}, { message: 'La hora de inicio debe tener formato fecha válido' })
+  readonly horaInicio?: string;
+
+  @ApiPropertyOptional({ description: 'Hora de fin específica del operario (ISO 8601)' })
+  @IsOptional()
+  @IsDateString({}, { message: 'La hora de fin debe tener formato fecha válido' })
+  readonly horaFin?: string;
+
+  @ApiPropertyOptional({ description: 'Horas asignadas estimadas', example: 3 })
+  @IsOptional()
+  @IsNumber({}, { message: 'Las horas asignadas deben ser un número' })
+  readonly horasAsignadas?: number;
 }
 
 export class AsignarRecursoDto {

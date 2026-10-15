@@ -10,7 +10,9 @@ import { ActividadAgricola } from '../../domain/entities/actividad-agricola.enti
 import {
   ActividadError,
   ActividadNoEncontradaError,
+  ConflictoDisponibilidadTrabajadorError,
 } from '../../domain/errors/actividad.errors.js';
+import { ValidadorDisponibilidadService } from '../services/validador-disponibilidad.service.js';
 
 /**
  * @description Caso de uso para actualizar datos, cuadrilla o insumos de una actividad existente.
@@ -22,6 +24,7 @@ export class ActualizarActividadCasoUso {
   constructor(
     @Inject(ACTIVIDAD_REPOSITORIO_PORT)
     private readonly actividadRepositorio: IActividadRepositorio,
+    private readonly validadorDisponibilidad: ValidadorDisponibilidadService,
   ) {}
 
   async ejecutar(
@@ -32,6 +35,31 @@ export class ActualizarActividadCasoUso {
     const actividadExistente = await this.actividadRepositorio.buscarPorId(comando.id);
     if (!actividadExistente) {
       return Result.fail(new ActividadNoEncontradaError(comando.id));
+    }
+
+    const parcelaDestinoId = comando.parcelaId ?? actividadExistente.parcelaId;
+    const fechaInicio = comando.fechaInicio ?? actividadExistente.fechaInicio;
+    const fechaFin = comando.fechaFin !== undefined ? comando.fechaFin : actividadExistente.fechaFin;
+
+    // Si se enviaron trabajadores actualizados, validar disponibilidad y traslados
+    if (comando.trabajadores && comando.trabajadores.length > 0) {
+      const validacion = await this.validadorDisponibilidad.validar(
+        parcelaDestinoId,
+        fechaInicio,
+        fechaFin || undefined,
+        comando.trabajadores.map((t) => ({
+          usuarioId: t.usuarioId,
+          horaInicio: t.horaInicio,
+          horaFin: t.horaFin,
+        })),
+        comando.id, // Excluir la actividad actual que se está editando
+      );
+
+      if (!validacion.esValido && validacion.conflictos.length > 0) {
+        const primerConflicto = validacion.conflictos[0];
+        this.logger.warn(`Conflicto de disponibilidad detectado: ${primerConflicto.mensaje}`);
+        return Result.fail(new ConflictoDisponibilidadTrabajadorError(primerConflicto.mensaje));
+      }
     }
 
     const entidadActualizada = new ActividadAgricola({

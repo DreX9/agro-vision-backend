@@ -20,5 +20,6 @@ export class ActualizarParcelaCommand {
     public readonly latitudCentro?: number,
     public readonly longitudCentro?: number,
     public readonly actualizadoPor?: string,
+    public readonly colorHex?: string,
   ) {}
 }

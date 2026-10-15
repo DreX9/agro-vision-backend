@@ -25,7 +25,11 @@ describe('RegistrarActividadCasoUso', () => {
       contarTotal: vi.fn(),
     };
 
-    casoUso = new RegistrarActividadCasoUso(mockRepositorio);
+    const mockValidador = {
+      validar: vi.fn().mockResolvedValue({ esValido: true, conflictos: [] }),
+    } as any;
+
+    casoUso = new RegistrarActividadCasoUso(mockRepositorio, mockValidador);
   });
 
   it('debe registrar una actividad exitosamente con su cuadrilla e insumos', async () => {

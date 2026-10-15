@@ -9,6 +9,9 @@ export class TrabajadorDetalleDto {
   @ApiProperty() readonly apellidos!: string;
   @ApiProperty({ required: false }) readonly rolEnActividad?: string | null;
   @ApiProperty({ required: false }) readonly telefono?: string | null;
+  @ApiProperty({ required: false }) readonly horaInicio?: Date | null;
+  @ApiProperty({ required: false }) readonly horaFin?: Date | null;
+  @ApiProperty({ required: false }) readonly horasAsignadas?: number | null;
 }
 
 export class RecursoDetalleDto {
@@ -88,6 +91,9 @@ export class ActividadDetalleDto {
         apellidos: t.apellidos,
         rolEnActividad: t.rolEnActividad,
         telefono: t.telefono,
+        horaInicio: t.horaInicio,
+        horaFin: t.horaFin,
+        horasAsignadas: t.horasAsignadas,
       })),
       recursos: actividad.recursos.map((r) => ({
         id: r.id,

@@ -8,7 +8,7 @@ export class RegistrarParcelaCommand {
     public readonly codigo: string | undefined,
     public readonly nombre: string,
     public readonly areaHectareas: number,
-    public readonly cultivoId: string,
+    public readonly cultivoId?: string,
     public readonly variedad?: string,
     public readonly usuarioResponsableId?: string,
     public readonly ubicacion?: string,
@@ -20,5 +20,6 @@ export class RegistrarParcelaCommand {
     public readonly latitudCentro?: number,
     public readonly longitudCentro?: number,
     public readonly creadoPor?: string,
+    public readonly colorHex?: string,
   ) {}
 }

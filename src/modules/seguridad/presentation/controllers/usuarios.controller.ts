@@ -13,8 +13,13 @@ import {
   NotFoundException,
   ConflictException,
   BadRequestException,
+  Inject,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import {
+  type IUsuarioRepositorio,
+  USUARIO_REPOSITORIO_PORT,
+} from '../../domain/ports/usuario-repositorio.port.js';
 import { CrearUsuarioDto } from '../dtos/crear-usuario.dto.js';
 import { ActualizarUsuarioDto } from '../dtos/actualizar-usuario.dto.js';
 import { FiltroUsuariosDto } from '../dtos/filtro-usuarios.dto.js';
@@ -48,7 +53,19 @@ export class UsuariosController {
     private readonly obtenerUsuarioPorIdCasoUso: ObtenerUsuarioPorIdCasoUso,
     private readonly cambiarEstadoUsuarioCasoUso: CambiarEstadoUsuarioCasoUso,
     private readonly eliminarUsuarioCasoUso: EliminarUsuarioCasoUso,
+    @Inject(USUARIO_REPOSITORIO_PORT)
+    private readonly usuarioRepositorio: IUsuarioRepositorio,
   ) {}
+
+  /**
+   * @description Obtiene el siguiente código correlativo sugerido según el rol (ej. OP-006, AD-002, AG-002).
+   */
+  @Get('siguiente-codigo')
+  @ApiOperation({ summary: 'Obtener siguiente código correlativo de empleado según rol' })
+  async obtenerSiguienteCodigo(@Query('rol') rol: string = 'OPERADOR'): Promise<{ siguienteCodigo: string }> {
+    const siguienteCodigo = await this.usuarioRepositorio.generarSiguienteCodigoEmpleado(rol.toUpperCase());
+    return { siguienteCodigo };
+  }
 
   /**
    * @description Lista usuarios con soporte para filtros de búsqueda, rol, estado y paginación.
@@ -110,6 +127,10 @@ export class UsuariosController {
       dto.direccion,
       dto.departamento,
       dto.provincia,
+      dto.codigoEmpleado,
+      dto.numeroDocumento,
+      dto.especialidad,
+      dto.cuadrilla,
     );
 
     const resultado = await this.registrarUsuarioCasoUso.ejecutar(comando);
@@ -151,6 +172,10 @@ export class UsuariosController {
       dto.direccion,
       dto.departamento,
       dto.provincia,
+      dto.codigoEmpleado,
+      dto.numeroDocumento,
+      dto.especialidad,
+      dto.cuadrilla,
     );
 
     const resultado = await this.actualizarUsuarioCasoUso.ejecutar(comando);

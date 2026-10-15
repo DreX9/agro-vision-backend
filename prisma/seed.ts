@@ -25,6 +25,7 @@ async function main() {
         telefono: '+51 987654321',
         passwordHash,
         rol: RolUsuario.ADMINISTRADOR,
+        codigoEmpleado: 'AD-001',
         direccion: 'Fundo Santa Elena Km 45',
         departamento: 'Ica',
         provincia: 'Ica',
@@ -94,13 +95,83 @@ async function main() {
     }
   }
 
+  // Personal técnico y supervisión
+  const personalTecnicoInicial = [
+    { nombres: 'Ricardo', apellidos: 'Palma Mendoza', correo: 'rpalma@santaelena.pe', telefono: '+51 980112233', rol: RolUsuario.AGRONOMO, codigoEmpleado: 'AG-001' },
+    { nombres: 'Lucía', apellidos: 'Morales Soto', correo: 'lmorales@santaelena.pe', telefono: '+51 980223344', rol: RolUsuario.SUPERVISOR, codigoEmpleado: 'SU-001' },
+  ];
+
+  for (const tec of personalTecnicoInicial) {
+    const existe = await prisma.usuario.findUnique({ where: { correo: tec.correo } });
+    if (!existe) {
+      await prisma.usuario.create({
+        data: {
+          nombres: tec.nombres,
+          apellidos: tec.apellidos,
+          correo: tec.correo,
+          telefono: tec.telefono,
+          passwordHash,
+          rol: tec.rol,
+          codigoEmpleado: tec.codigoEmpleado,
+          activo: true,
+        },
+      });
+      console.log(`Personal técnico creado: ${tec.nombres} ${tec.apellidos} (${tec.rol})`);
+    }
+  }
+
   // Operadores de campo para cuadrillas
   const operariosIniciales = [
-    { nombres: 'Carlos', apellidos: 'Mendoza Quispe', correo: 'cmendoza@santaelena.pe', telefono: '+51 981112233' },
-    { nombres: 'Juan', apellidos: 'Huamán Flores', correo: 'jhuaman@santaelena.pe', telefono: '+51 982223344' },
-    { nombres: 'María', apellidos: 'Rojas Torres', correo: 'mrojas@santaelena.pe', telefono: '+51 983334455' },
-    { nombres: 'Roberto', apellidos: 'Silva Paucar', correo: 'rsilva@santaelena.pe', telefono: '+51 984445566' },
-    { nombres: 'Pedro', apellidos: 'Castillo Gómez', correo: 'pcastillo@santaelena.pe', telefono: '+51 985556677' },
+    {
+      nombres: 'Carlos',
+      apellidos: 'Mendoza Quispe',
+      correo: 'cmendoza@santaelena.pe',
+      telefono: '+51 981112233',
+      codigoEmpleado: 'OP-001',
+      numeroDocumento: '71001122',
+      especialidad: 'PODADOR' as const,
+      cuadrilla: 'Cuadrilla 1 - Poda',
+    },
+    {
+      nombres: 'Juan',
+      apellidos: 'Huamán Flores',
+      correo: 'jhuaman@santaelena.pe',
+      telefono: '+51 982223344',
+      codigoEmpleado: 'OP-002',
+      numeroDocumento: '72002233',
+      especialidad: 'FUMIGADOR_APLICADOR' as const,
+      cuadrilla: 'Cuadrilla Fitosanitaria',
+    },
+    {
+      nombres: 'María',
+      apellidos: 'Rojas Torres',
+      correo: 'mrojas@santaelena.pe',
+      telefono: '+51 983334455',
+      codigoEmpleado: 'OP-003',
+      numeroDocumento: '73003344',
+      especialidad: 'REGADOR' as const,
+      cuadrilla: 'Cuadrilla Riego Sur',
+    },
+    {
+      nombres: 'Roberto',
+      apellidos: 'Silva Paucar',
+      correo: 'rsilva@santaelena.pe',
+      telefono: '+51 984445566',
+      codigoEmpleado: 'OP-004',
+      numeroDocumento: '74004455',
+      especialidad: 'TRACTORISTA_MAQUINISTA' as const,
+      cuadrilla: 'Cuadrilla Maquinaria',
+    },
+    {
+      nombres: 'Pedro',
+      apellidos: 'Castillo Gómez',
+      correo: 'pcastillo@santaelena.pe',
+      telefono: '+51 985556677',
+      codigoEmpleado: 'OP-005',
+      numeroDocumento: '75005566',
+      especialidad: 'COSECHADOR' as const,
+      cuadrilla: 'Cuadrilla 2 - Cosecha',
+    },
   ];
 
   for (const op of operariosIniciales) {
@@ -115,9 +186,15 @@ async function main() {
           passwordHash,
           rol: RolUsuario.OPERADOR,
           activo: true,
+          ...({
+            codigoEmpleado: op.codigoEmpleado,
+            numeroDocumento: op.numeroDocumento,
+            especialidad: op.especialidad,
+            cuadrilla: op.cuadrilla,
+          } as any),
         },
       });
-      console.log(`Operador de campo creado: ${op.nombres} ${op.apellidos}`);
+      console.log(`Operador de campo creado: ${op.nombres} ${op.apellidos} [${op.codigoEmpleado}] (${op.especialidad})`);
     }
   }
 

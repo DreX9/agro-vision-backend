@@ -17,6 +17,19 @@ enum SexoUsuario {
   @@schema("seguridad")
 }
 
+enum EspecialidadAgricola {
+  GENERAL
+  PODADOR
+  FUMIGADOR_APLICADOR
+  REGADOR
+  TRACTORISTA_MAQUINISTA
+  COSECHADOR
+  INJERTADOR
+
+  @@map("especialidades_agricola")
+  @@schema("seguridad")
+}
+
 model Usuario {
   id              String       @id @default(uuid(7)) @db.Uuid
   nombres         String       @map("nombres") @db.VarChar(100)
@@ -28,6 +41,12 @@ model Usuario {
   sexo            SexoUsuario? @map("sexo")
   fechaNacimiento DateTime?    @map("fecha_nacimiento") @db.Date
   direccion       String?      @map("direccion") @db.VarChar(255)
+
+  // Datos específicos de trabajador / operario de campo
+  codigoEmpleado  String?               @unique @map("codigo_empleado") @db.VarChar(50)
+  numeroDocumento String?               @unique @map("numero_documento") @db.VarChar(20)
+  especialidad    EspecialidadAgricola? @default(GENERAL) @map("especialidad")
+  cuadrilla       String?               @map("cuadrilla") @db.VarChar(100)
 
   departamento    String?      @map("departamento") @db.VarChar(100)
   provincia       String?      @map("provincia") @db.VarChar(100)
