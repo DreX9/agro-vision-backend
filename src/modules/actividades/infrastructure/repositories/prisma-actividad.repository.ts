@@ -67,15 +67,15 @@ export class PrismaActividadRepository implements IActividadRepositorio {
       fechaInicio: r.fechaInicio,
       fechaFin: r.fechaFin,
       estado: r.estado,
-      trabajadores: r.trabajadores.map((t) => ({
+      trabajadores: (r.trabajadores || []).map((t: any) => ({
         id: t.id,
         usuarioId: t.usuarioId,
-        nombres: t.usuario.nombres,
-        apellidos: t.usuario.apellidos,
+        nombres: t.usuario?.nombres,
+        apellidos: t.usuario?.apellidos,
         rolEnActividad: t.rolEnActividad,
-        telefono: t.usuario.telefono,
+        telefono: t.usuario?.telefono,
       })),
-      recursos: r.recursos.map((rec) => ({
+      recursos: (r.recursos || []).map((rec: any) => ({
         id: rec.id,
         insumoId: rec.insumoId,
         nombreInsumo: rec.insumo.nombre,
