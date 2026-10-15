@@ -22,5 +22,6 @@ export class ActualizarActividadCommand {
     public readonly trabajadores?: TrabajadorAsignarComando[],
     public readonly recursos?: RecursoAsignarComando[],
     public readonly actualizadoPor?: string,
+    public readonly sectorId?: string,
   ) {}
 }

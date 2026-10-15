@@ -68,6 +68,7 @@ model SectorParcela {
   // Parcela Matriz a la que pertenece
   parcelaId            String        @map("parcela_id") @db.Uuid
   parcela              Parcela       @relation(fields: [parcelaId], references: [id], onDelete: Cascade)
+  actividades          ActividadAgricola[]
 
   // Cultivo asignado
   cultivoId            String        @map("cultivo_id") @db.Uuid

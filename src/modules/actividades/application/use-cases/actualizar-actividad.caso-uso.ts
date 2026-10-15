@@ -70,6 +70,7 @@ export class ActualizarActividadCasoUso {
       descripcion: comando.descripcion !== undefined ? comando.descripcion : actividadExistente.descripcion,
       observaciones: comando.observaciones !== undefined ? comando.observaciones : actividadExistente.observaciones,
       parcelaId: comando.parcelaId ?? actividadExistente.parcelaId,
+      sectorId: comando.sectorId !== undefined ? comando.sectorId : actividadExistente.sectorId,
       usuarioResponsableId:
         comando.usuarioResponsableId !== undefined
           ? comando.usuarioResponsableId

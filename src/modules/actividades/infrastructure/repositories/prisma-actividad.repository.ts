@@ -24,6 +24,7 @@ type PrismaActividadConRelaciones = Prisma.ActividadAgricolaGetPayload<{
 
 const INCLUSION_COMPLETA = {
   parcela: { select: { nombre: true, cultivo: { select: { nombre: true } } } },
+  sector: { select: { id: true, codigo: true, nombre: true, cultivo: { select: { nombre: true } } } },
   usuarioResponsable: { select: { nombres: true, apellidos: true } },
   trabajadores: {
     include: { usuario: { select: { nombres: true, apellidos: true, telefono: true } } },
@@ -40,10 +41,13 @@ const INCLUSION_COMPLETA = {
 export class PrismaActividadRepository implements IActividadRepositorio {
   constructor(private readonly prisma: PrismaService) {}
 
-  private mapearAEntidad(r: PrismaActividadConRelaciones): ActividadAgricola {
+  private mapearAEntidad(r: any): ActividadAgricola {
     const responsableNombre = r.usuarioResponsable
       ? `${r.usuarioResponsable.nombres} ${r.usuarioResponsable.apellidos}`.trim()
       : null;
+
+    const sector = r.sector;
+    const cultivo = sector?.cultivo?.nombre || r.parcela?.cultivo?.nombre;
 
     return new ActividadAgricola({
       id: r.id,
@@ -54,7 +58,10 @@ export class PrismaActividadRepository implements IActividadRepositorio {
       observaciones: r.observaciones,
       parcelaId: r.parcelaId,
       parcelaNombre: r.parcela?.nombre,
-      cultivoNombre: r.parcela?.cultivo?.nombre,
+      sectorId: r.sectorId ?? sector?.id ?? null,
+      sectorNombre: sector?.nombre ?? null,
+      sectorCodigo: sector?.codigo ?? null,
+      cultivoNombre: cultivo,
       usuarioResponsableId: r.usuarioResponsableId,
       usuarioResponsableNombre: responsableNombre,
       fechaInicio: r.fechaInicio,
@@ -154,6 +161,9 @@ export class PrismaActividadRepository implements IActividadRepositorio {
         fechaFin: actividad.fechaFin ?? null,
         estado: actividad.estado,
         parcela: { connect: { id: actividad.parcelaId } },
+        ...(actividad.sectorId
+          ? { sector: { connect: { id: actividad.sectorId } } }
+          : {}),
         ...(actividad.usuarioResponsableId
           ? { usuarioResponsable: { connect: { id: actividad.usuarioResponsableId } } }
           : {}),
@@ -225,6 +235,11 @@ export class PrismaActividadRepository implements IActividadRepositorio {
           fechaFin: actividad.fechaFin ?? null,
           estado: actividad.estado,
           parcela: { connect: { id: actividad.parcelaId } },
+          ...(actividad.sectorId !== undefined
+            ? actividad.sectorId
+              ? { sector: { connect: { id: actividad.sectorId } } }
+              : { sector: { disconnect: true } }
+            : {}),
           ...(actividad.usuarioResponsableId
             ? { usuarioResponsable: { connect: { id: actividad.usuarioResponsableId } } }
             : { usuarioResponsable: { disconnect: true } }),

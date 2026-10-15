@@ -24,6 +24,15 @@ export class ActividadItemDto {
   @ApiProperty({ description: 'Nombre de la parcela', required: false })
   readonly parcelaNombre?: string;
 
+  @ApiProperty({ description: 'Identificador del sector o área de cultivo', required: false })
+  readonly sectorId?: string | null;
+
+  @ApiProperty({ description: 'Nombre del sector o área de cultivo', required: false })
+  readonly sectorNombre?: string | null;
+
+  @ApiProperty({ description: 'Código del sector o área de cultivo', required: false })
+  readonly sectorCodigo?: string | null;
+
   @ApiProperty({ description: 'Cultivo de la parcela', required: false })
   readonly cultivoNombre?: string;
 
@@ -58,6 +67,9 @@ export class ActividadItemDto {
     this.tipo = datos.tipo;
     this.parcelaId = datos.parcelaId;
     this.parcelaNombre = datos.parcelaNombre;
+    this.sectorId = datos.sectorId;
+    this.sectorNombre = datos.sectorNombre;
+    this.sectorCodigo = datos.sectorCodigo;
     this.cultivoNombre = datos.cultivoNombre;
     this.usuarioResponsableId = datos.usuarioResponsableId;
     this.usuarioResponsableNombre = datos.usuarioResponsableNombre;
@@ -77,6 +89,9 @@ export class ActividadItemDto {
       tipo: actividad.tipo,
       parcelaId: actividad.parcelaId,
       parcelaNombre: actividad.parcelaNombre,
+      sectorId: actividad.sectorId,
+      sectorNombre: actividad.sectorNombre,
+      sectorCodigo: actividad.sectorCodigo,
       cultivoNombre: actividad.cultivoNombre,
       usuarioResponsableId: actividad.usuarioResponsableId,
       usuarioResponsableNombre: actividad.usuarioResponsableNombre,

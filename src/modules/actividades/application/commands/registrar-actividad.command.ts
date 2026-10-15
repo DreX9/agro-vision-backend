@@ -33,5 +33,6 @@ export class RegistrarActividadCommand {
     public readonly trabajadores: TrabajadorAsignarComando[] = [],
     public readonly recursos: RecursoAsignarComando[] = [],
     public readonly creadoPor?: string,
+    public readonly sectorId?: string,
   ) {}
 }
