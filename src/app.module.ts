@@ -7,6 +7,7 @@ import { SeguridadModule } from './modules/seguridad/seguridad.module.js';
 import { CultivosModule } from './modules/cultivos/cultivos.module.js';
 import { ParcelasModule } from './modules/parcelas/parcelas.module.js';
 import { ActividadesModule } from './modules/actividades/actividades.module.js';
+import { DiagnosticosModule } from './modules/diagnosticos/diagnosticos.module.js';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { ActividadesModule } from './modules/actividades/actividades.module.js';
     CultivosModule,
     ParcelasModule,
     ActividadesModule,
+    DiagnosticosModule,
   ],
   controllers: [AppController],
   providers: [AppService],

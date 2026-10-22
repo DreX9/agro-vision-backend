@@ -78,6 +78,10 @@ model ActividadAgricola {
   parcelaId            String               @map("parcela_id") @db.Uuid
   parcela              Parcela              @relation(fields: [parcelaId], references: [id], onDelete: Restrict)
 
+  // Sector o área de cultivo asignada (opcional)
+  sectorId             String?              @map("sector_id") @db.Uuid
+  sector               SectorParcela?       @relation(fields: [sectorId], references: [id], onDelete: SetNull)
+
   // Responsable / Supervisor de la actividad
   usuarioResponsableId String?              @map("usuario_responsable_id") @db.Uuid
   usuarioResponsable   Usuario?             @relation("ActividadesResponsable", fields: [usuarioResponsableId], references: [id], onDelete: Restrict)
@@ -101,6 +105,7 @@ model ActividadAgricola {
   version              Int                  @default(1) @map("version")
 
   @@index([parcelaId])
+  @@index([sectorId])
   @@index([usuarioResponsableId])
   @@index([estado])
   @@index([fechaInicio])

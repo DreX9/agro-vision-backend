@@ -31,6 +31,9 @@ export interface ActividadAgricolaProps {
   observaciones?: string | null;
   parcelaId: string;
   parcelaNombre?: string;
+  sectorId?: string | null;
+  sectorNombre?: string | null;
+  sectorCodigo?: string | null;
   cultivoNombre?: string;
   usuarioResponsableId?: string | null;
   usuarioResponsableNombre?: string | null;
@@ -84,6 +87,18 @@ export class ActividadAgricola {
 
   get parcelaNombre(): string | undefined {
     return this.props.parcelaNombre;
+  }
+
+  get sectorId(): string | null | undefined {
+    return this.props.sectorId;
+  }
+
+  get sectorNombre(): string | null | undefined {
+    return this.props.sectorNombre;
+  }
+
+  get sectorCodigo(): string | null | undefined {
+    return this.props.sectorCodigo;
   }
 
   get cultivoNombre(): string | undefined {

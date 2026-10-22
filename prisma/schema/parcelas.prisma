@@ -30,6 +30,7 @@ model Parcela {
   usuarioResponsable   Usuario?             @relation(fields: [usuarioResponsableId], references: [id], onDelete: Restrict)
   actividades          ActividadAgricola[]
   sectores             SectorParcela[]
+  diagnosticos         DiagnosticoCampo[]
   
   // Ubicación territorial
   ubicacion            String?       @map("ubicacion") @db.VarChar(255)
@@ -68,6 +69,8 @@ model SectorParcela {
   // Parcela Matriz a la que pertenece
   parcelaId            String        @map("parcela_id") @db.Uuid
   parcela              Parcela       @relation(fields: [parcelaId], references: [id], onDelete: Cascade)
+  actividades          ActividadAgricola[]
+  diagnosticos         DiagnosticoCampo[]
 
   // Cultivo asignado
   cultivoId            String        @map("cultivo_id") @db.Uuid

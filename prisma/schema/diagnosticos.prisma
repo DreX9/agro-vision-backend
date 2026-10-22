@@ -1,0 +1,50 @@
+// prisma/schema/diagnosticos.prisma
+
+enum EstadoSaludFoliar {
+  OPTIMO
+  ALERTA
+  CRITICO
+  SIN_DETECCION
+
+  @@map("estados_salud_foliar")
+  @@schema("diagnosticos")
+}
+
+model DiagnosticoCampo {
+  id                    String            @id @default(uuid(7)) @db.Uuid
+  codigo                String            @unique @map("codigo") @db.VarChar(50)
+
+  parcelaId             String            @map("parcela_id") @db.Uuid
+  parcela               Parcela           @relation(fields: [parcelaId], references: [id], onDelete: Cascade)
+
+  sectorId              String?           @map("sector_id") @db.Uuid
+  sector                SectorParcela?    @relation(fields: [sectorId], references: [id], onDelete: SetNull)
+
+  usuarioId             String?           @map("usuario_id") @db.Uuid
+  usuario               Usuario?          @relation(fields: [usuarioId], references: [id], onDelete: SetNull)
+
+  // Coordenadas geográficas donde se desplegó y detectó el dron
+  latitud               Decimal           @map("latitud") @db.Decimal(11, 8)
+  longitud              Decimal           @map("longitud") @db.Decimal(11, 8)
+
+  estadoGeneral         EstadoSaludFoliar @default(OPTIMO) @map("estado_general")
+  saludPorcentaje       Int               @default(100) @map("salud_porcentaje")
+  totalPlagasDetectadas Int               @default(0) @map("total_plagas_detectadas")
+
+  detecciones           Json              @default("[]") @map("detecciones")
+  recomendaciones       Json              @default("[]") @map("recomendaciones")
+  tiempoProcesamientoMs Int?              @map("tiempo_procesamiento_ms")
+  imagenUrl             String?           @map("imagen_url") @db.Text
+  origenCaptura         String?           @default("DRON_SIMULADO") @map("origen_captura") @db.VarChar(50)
+  observaciones         String?           @map("observaciones") @db.Text
+
+  createdAt             DateTime          @default(now()) @map("created_at")
+  updatedAt             DateTime          @updatedAt @map("updated_at")
+
+  @@index([parcelaId])
+  @@index([sectorId])
+  @@index([usuarioId])
+  @@index([createdAt])
+  @@map("diagnosticos_campo")
+  @@schema("diagnosticos")
+}

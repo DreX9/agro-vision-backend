@@ -33,6 +33,11 @@ export class ActualizarActividadDto {
   @IsUUID('all', { message: 'El identificador de la parcela debe ser un UUID válido' })
   readonly parcelaId?: string;
 
+  @ApiPropertyOptional({ description: 'Identificador UUID del sector o área de cultivo (opcional)' })
+  @IsOptional()
+  @IsUUID('all', { message: 'El identificador del sector debe ser un UUID válido' })
+  readonly sectorId?: string;
+
   @ApiPropertyOptional({ description: 'Fecha programada de inicio (ISO 8601)' })
   @IsOptional()
   @IsDateString({}, { message: 'La fecha de inicio debe tener formato válido' })

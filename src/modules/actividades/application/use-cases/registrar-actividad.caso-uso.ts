@@ -72,6 +72,7 @@ export class RegistrarActividadCasoUso {
       descripcion: comando.descripcion?.trim() || null,
       observaciones: comando.observaciones?.trim() || null,
       parcelaId: comando.parcelaId,
+      sectorId: comando.sectorId || null,
       usuarioResponsableId: comando.usuarioResponsableId || null,
       fechaInicio: comando.fechaInicio,
       fechaFin: comando.fechaFin || null,

@@ -36,6 +36,9 @@ export class ActividadDetalleDto {
   @ApiProperty({ required: false }) readonly observaciones?: string | null;
   @ApiProperty() readonly parcelaId: string;
   @ApiProperty({ required: false }) readonly parcelaNombre?: string;
+  @ApiProperty({ required: false }) readonly sectorId?: string | null;
+  @ApiProperty({ required: false }) readonly sectorNombre?: string | null;
+  @ApiProperty({ required: false }) readonly sectorCodigo?: string | null;
   @ApiProperty({ required: false }) readonly cultivoNombre?: string;
   @ApiProperty({ required: false }) readonly usuarioResponsableId?: string | null;
   @ApiProperty({ required: false }) readonly usuarioResponsableNombre?: string | null;
@@ -56,6 +59,9 @@ export class ActividadDetalleDto {
     this.observaciones = datos.observaciones;
     this.parcelaId = datos.parcelaId;
     this.parcelaNombre = datos.parcelaNombre;
+    this.sectorId = datos.sectorId;
+    this.sectorNombre = datos.sectorNombre;
+    this.sectorCodigo = datos.sectorCodigo;
     this.cultivoNombre = datos.cultivoNombre;
     this.usuarioResponsableId = datos.usuarioResponsableId;
     this.usuarioResponsableNombre = datos.usuarioResponsableNombre;
@@ -78,6 +84,9 @@ export class ActividadDetalleDto {
       observaciones: actividad.observaciones,
       parcelaId: actividad.parcelaId,
       parcelaNombre: actividad.parcelaNombre,
+      sectorId: actividad.sectorId,
+      sectorNombre: actividad.sectorNombre,
+      sectorCodigo: actividad.sectorCodigo,
       cultivoNombre: actividad.cultivoNombre,
       usuarioResponsableId: actividad.usuarioResponsableId,
       usuarioResponsableNombre: actividad.usuarioResponsableNombre,

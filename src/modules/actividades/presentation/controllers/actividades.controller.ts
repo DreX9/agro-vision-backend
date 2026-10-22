@@ -149,6 +149,8 @@ export class ActividadesController {
         unidadMedida: r.unidadMedida,
         notas: r.notas,
       })) || [],
+      undefined,
+      dto.sectorId,
     );
 
     const resultado = await this.registrarActividadCasoUso.ejecutar(comando);
@@ -199,6 +201,8 @@ export class ActividadesController {
         unidadMedida: r.unidadMedida,
         notas: r.notas,
       })),
+      undefined,
+      dto.sectorId,
     );
 
     const resultado = await this.actualizarActividadCasoUso.ejecutar(comando);
