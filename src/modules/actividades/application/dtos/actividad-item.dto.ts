@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { TipoActividad, EstadoActividad } from '@prisma/client';
-import { ActividadAgricola } from '../../domain/entities/actividad-agricola.entity.js';
+import { ActividadAgricola, TrabajadorAsignadoProps } from '../../domain/entities/actividad-agricola.entity.js';
 
 /**
  * @description DTO de lectura para la lista de actividades agrícolas.
@@ -17,6 +17,9 @@ export class ActividadItemDto {
 
   @ApiProperty({ description: 'Tipo de labor agrícola', enum: TipoActividad })
   readonly tipo: TipoActividad;
+
+  @ApiProperty({ description: 'Descripción detallada de la labor', required: false })
+  readonly descripcion?: string | null;
 
   @ApiProperty({ description: 'Identificador de la parcela' })
   readonly parcelaId: string;
@@ -54,6 +57,9 @@ export class ActividadItemDto {
   @ApiProperty({ description: 'Cantidad de trabajadores asignados a la cuadrilla' })
   readonly cantidadTrabajadores: number;
 
+  @ApiProperty({ description: 'Trabajadores asignados a la actividad', required: false })
+  readonly trabajadores?: TrabajadorAsignadoProps[];
+
   @ApiProperty({ description: 'Cantidad de insumos o recursos planificados' })
   readonly cantidadRecursos: number;
 
@@ -65,6 +71,7 @@ export class ActividadItemDto {
     this.codigo = datos.codigo;
     this.titulo = datos.titulo;
     this.tipo = datos.tipo;
+    this.descripcion = datos.descripcion;
     this.parcelaId = datos.parcelaId;
     this.parcelaNombre = datos.parcelaNombre;
     this.sectorId = datos.sectorId;
@@ -77,6 +84,7 @@ export class ActividadItemDto {
     this.fechaFin = datos.fechaFin;
     this.estado = datos.estado;
     this.cantidadTrabajadores = datos.cantidadTrabajadores;
+    this.trabajadores = datos.trabajadores;
     this.cantidadRecursos = datos.cantidadRecursos;
     this.createdAt = datos.createdAt;
   }
@@ -87,6 +95,7 @@ export class ActividadItemDto {
       codigo: actividad.codigo,
       titulo: actividad.titulo,
       tipo: actividad.tipo,
+      descripcion: actividad.descripcion,
       parcelaId: actividad.parcelaId,
       parcelaNombre: actividad.parcelaNombre,
       sectorId: actividad.sectorId,
@@ -99,6 +108,7 @@ export class ActividadItemDto {
       fechaFin: actividad.fechaFin,
       estado: actividad.estado,
       cantidadTrabajadores: actividad.cantidadTrabajadores,
+      trabajadores: actividad.trabajadores,
       cantidadRecursos: actividad.recursos.length,
       createdAt: actividad.createdAt,
     });
