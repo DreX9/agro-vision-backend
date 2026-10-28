@@ -5,11 +5,13 @@ import { RegistrarDiagnosticoCasoUso } from './registrar-diagnostico.caso-uso.js
 import { type IDiagnosticoCampoRepositorio } from '../../domain/ports/diagnostico-campo-repositorio.port.js';
 import { type IParcelaRepositorio } from '../../../parcelas/domain/ports/parcela-repositorio.port.js';
 import { DiagnosticoCampo } from '../../domain/entities/diagnostico-campo.entity.js';
+import { AlertasFitosanitariasService } from '../services/alertas-fitosanitarias.service.js';
 
 describe('RegistrarDiagnosticoCasoUso', () => {
   let casoUso: RegistrarDiagnosticoCasoUso;
   let mockDiagnosticoRepo: IDiagnosticoCampoRepositorio;
   let mockParcelaRepo: IParcelaRepositorio;
+  let mockAlertasService: AlertasFitosanitariasService;
 
   beforeEach(() => {
     mockDiagnosticoRepo = {
@@ -30,7 +32,17 @@ describe('RegistrarDiagnosticoCasoUso', () => {
       contarTotal: vi.fn(),
     };
 
-    casoUso = new RegistrarDiagnosticoCasoUso(mockDiagnosticoRepo, mockParcelaRepo);
+    mockAlertasService = {
+      emitirAlerta: vi.fn(),
+      obtenerStreamAlertas: vi.fn(),
+      obtenerAlertasRecientes: vi.fn(),
+    } as unknown as AlertasFitosanitariasService;
+
+    casoUso = new RegistrarDiagnosticoCasoUso(
+      mockDiagnosticoRepo,
+      mockParcelaRepo,
+      mockAlertasService,
+    );
   });
 
   it('debe registrar un diagnóstico como ALERTA cuando se detectan plagas o estado crítico', async () => {
@@ -50,6 +62,7 @@ describe('RegistrarDiagnosticoCasoUso', () => {
     expect(resultado.esAlerta).toBe(true);
     expect(resultado.estadoGeneral).toBe(EstadoSaludFoliar.ALERTA);
     expect(mockDiagnosticoRepo.crear).toHaveBeenCalledTimes(1);
+    expect(mockAlertasService.emitirAlerta).toHaveBeenCalledTimes(1);
   });
 
   it('debe registrar un diagnóstico como NO ALERTA (esAlerta: false) si el estado es OPTIMO y 0 plagas', async () => {
@@ -97,3 +110,4 @@ describe('RegistrarDiagnosticoCasoUso', () => {
     ).rejects.toThrow(NotFoundException);
   });
 });
+

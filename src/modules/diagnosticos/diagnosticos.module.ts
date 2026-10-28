@@ -7,10 +7,13 @@ import { ListarDiagnosticosCasoUso } from './application/use-cases/listar-diagno
 import { DIAGNOSTICO_CAMPO_REPOSITORIO_PORT } from './domain/ports/diagnostico-campo-repositorio.port.js';
 import { PrismaDiagnosticoCampoRepository } from './infrastructure/repositories/prisma-diagnostico-campo.repository.js';
 
+import { AlertasFitosanitariasService } from './application/services/alertas-fitosanitarias.service.js';
+
 @Module({
   imports: [PrismaModule, ParcelasModule],
   controllers: [DiagnosticosController],
   providers: [
+    AlertasFitosanitariasService,
     RegistrarDiagnosticoCasoUso,
     ListarDiagnosticosCasoUso,
     {
@@ -19,6 +22,7 @@ import { PrismaDiagnosticoCampoRepository } from './infrastructure/repositories/
     },
   ],
   exports: [
+    AlertasFitosanitariasService,
     DIAGNOSTICO_CAMPO_REPOSITORIO_PORT,
     RegistrarDiagnosticoCasoUso,
     ListarDiagnosticosCasoUso,
