@@ -21,6 +21,8 @@ export class RecursoDetalleDto {
   @ApiProperty() readonly categoriaInsumo!: string;
   @ApiProperty() readonly cantidadEstimada!: number;
   @ApiProperty() readonly unidadMedida!: string;
+  @ApiProperty({ required: false }) readonly dosis?: string | null;
+  @ApiProperty({ required: false }) readonly cantidadReal?: number | null;
   @ApiProperty({ required: false }) readonly notas?: string | null;
 }
 
@@ -34,6 +36,10 @@ export class ActividadDetalleDto {
   @ApiProperty({ enum: TipoActividad }) readonly tipo: TipoActividad;
   @ApiProperty({ required: false }) readonly descripcion?: string | null;
   @ApiProperty({ required: false }) readonly observaciones?: string | null;
+  @ApiProperty({ required: false }) readonly blancoBiologico?: string | null;
+  @ApiProperty({ required: false }) readonly metodoAplicacion?: string | null;
+  @ApiProperty({ required: false }) readonly diasCarencia?: number | null;
+  @ApiProperty({ required: false }) readonly horasReingreso?: number | null;
   @ApiProperty() readonly parcelaId: string;
   @ApiProperty({ required: false }) readonly parcelaNombre?: string;
   @ApiProperty({ required: false }) readonly sectorId?: string | null;
@@ -57,6 +63,10 @@ export class ActividadDetalleDto {
     this.tipo = datos.tipo;
     this.descripcion = datos.descripcion;
     this.observaciones = datos.observaciones;
+    this.blancoBiologico = datos.blancoBiologico;
+    this.metodoAplicacion = datos.metodoAplicacion;
+    this.diasCarencia = datos.diasCarencia;
+    this.horasReingreso = datos.horasReingreso;
     this.parcelaId = datos.parcelaId;
     this.parcelaNombre = datos.parcelaNombre;
     this.sectorId = datos.sectorId;
@@ -82,6 +92,10 @@ export class ActividadDetalleDto {
       tipo: actividad.tipo,
       descripcion: actividad.descripcion,
       observaciones: actividad.observaciones,
+      blancoBiologico: actividad.blancoBiologico,
+      metodoAplicacion: actividad.metodoAplicacion,
+      diasCarencia: actividad.diasCarencia,
+      horasReingreso: actividad.horasReingreso,
       parcelaId: actividad.parcelaId,
       parcelaNombre: actividad.parcelaNombre,
       sectorId: actividad.sectorId,
@@ -111,6 +125,8 @@ export class ActividadDetalleDto {
         categoriaInsumo: r.categoriaInsumo,
         cantidadEstimada: r.cantidadEstimada,
         unidadMedida: r.unidadMedida,
+        dosis: r.dosis,
+        cantidadReal: r.cantidadReal,
         notas: r.notas,
       })),
       createdAt: actividad.createdAt,

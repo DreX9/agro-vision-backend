@@ -21,6 +21,12 @@ export class ActividadItemDto {
   @ApiProperty({ description: 'Descripción detallada de la labor', required: false })
   readonly descripcion?: string | null;
 
+  @ApiProperty({ description: 'Blanco biológico o fitosanitario', required: false })
+  readonly blancoBiologico?: string | null;
+
+  @ApiProperty({ description: 'Método de aplicación', required: false })
+  readonly metodoAplicacion?: string | null;
+
   @ApiProperty({ description: 'Identificador de la parcela' })
   readonly parcelaId: string;
 
@@ -72,6 +78,8 @@ export class ActividadItemDto {
     this.titulo = datos.titulo;
     this.tipo = datos.tipo;
     this.descripcion = datos.descripcion;
+    this.blancoBiologico = datos.blancoBiologico;
+    this.metodoAplicacion = datos.metodoAplicacion;
     this.parcelaId = datos.parcelaId;
     this.parcelaNombre = datos.parcelaNombre;
     this.sectorId = datos.sectorId;
@@ -96,6 +104,8 @@ export class ActividadItemDto {
       titulo: actividad.titulo,
       tipo: actividad.tipo,
       descripcion: actividad.descripcion,
+      blancoBiologico: actividad.blancoBiologico,
+      metodoAplicacion: actividad.metodoAplicacion,
       parcelaId: actividad.parcelaId,
       parcelaNombre: actividad.parcelaNombre,
       sectorId: actividad.sectorId,

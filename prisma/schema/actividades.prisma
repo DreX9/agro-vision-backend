@@ -74,6 +74,12 @@ model ActividadAgricola {
   descripcion          String?              @map("descripcion") @db.Text
   observaciones        String?              @map("observaciones") @db.Text
 
+  // Parámetros agronómicos de campo y trazabilidad
+  blancoBiologico      String?              @map("blanco_biologico") @db.VarChar(150)
+  metodoAplicacion     String?              @map("metodo_aplicacion") @db.VarChar(100)
+  diasCarencia         Int?                 @map("dias_carencia")
+  horasReingreso       Int?                 @map("horas_reingreso")
+
   // Parcela vinculada
   parcelaId            String               @map("parcela_id") @db.Uuid
   parcela              Parcela              @relation(fields: [parcelaId], references: [id], onDelete: Restrict)
@@ -147,6 +153,8 @@ model ActividadRecurso {
 
   cantidadEstimada Decimal           @map("cantidad_estimada") @db.Decimal(10, 2)
   unidadMedida     String            @map("unidad_medida") @db.VarChar(50)
+  dosis            String?           @map("dosis") @db.VarChar(100)
+  cantidadReal     Decimal?          @map("cantidad_real") @db.Decimal(10, 2)
   notas            String?           @map("notas") @db.VarChar(255)
   createdAt        DateTime          @default(now()) @map("created_at")
 

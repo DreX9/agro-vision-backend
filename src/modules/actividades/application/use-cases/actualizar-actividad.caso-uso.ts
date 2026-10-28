@@ -69,6 +69,14 @@ export class ActualizarActividadCasoUso {
       tipo: comando.tipo ?? actividadExistente.tipo,
       descripcion: comando.descripcion !== undefined ? comando.descripcion : actividadExistente.descripcion,
       observaciones: comando.observaciones !== undefined ? comando.observaciones : actividadExistente.observaciones,
+      blancoBiologico:
+        comando.blancoBiologico !== undefined ? comando.blancoBiologico : actividadExistente.blancoBiologico,
+      metodoAplicacion:
+        comando.metodoAplicacion !== undefined ? comando.metodoAplicacion : actividadExistente.metodoAplicacion,
+      diasCarencia:
+        comando.diasCarencia !== undefined ? comando.diasCarencia : actividadExistente.diasCarencia,
+      horasReingreso:
+        comando.horasReingreso !== undefined ? comando.horasReingreso : actividadExistente.horasReingreso,
       parcelaId: comando.parcelaId ?? actividadExistente.parcelaId,
       sectorId: comando.sectorId !== undefined ? comando.sectorId : actividadExistente.sectorId,
       usuarioResponsableId:

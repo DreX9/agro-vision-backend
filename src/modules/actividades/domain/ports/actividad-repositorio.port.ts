@@ -24,6 +24,8 @@ export interface RecursoEntrada {
   insumoId: string;
   cantidadEstimada: number;
   unidadMedida: string;
+  dosis?: string | null;
+  cantidadReal?: number | null;
   notas?: string;
 }
 

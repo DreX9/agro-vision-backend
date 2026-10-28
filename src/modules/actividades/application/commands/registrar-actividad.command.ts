@@ -12,6 +12,8 @@ export interface RecursoAsignarComando {
   insumoId: string;
   cantidadEstimada: number;
   unidadMedida: string;
+  dosis?: string;
+  cantidadReal?: number;
   notas?: string;
 }
 
@@ -34,5 +36,9 @@ export class RegistrarActividadCommand {
     public readonly recursos: RecursoAsignarComando[] = [],
     public readonly creadoPor?: string,
     public readonly sectorId?: string,
+    public readonly blancoBiologico?: string,
+    public readonly metodoAplicacion?: string,
+    public readonly diasCarencia?: number,
+    public readonly horasReingreso?: number,
   ) {}
 }
