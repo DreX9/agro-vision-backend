@@ -52,6 +52,7 @@ export class PrismaDiagnosticoCampoRepository implements IDiagnosticoCampoReposi
       estadoGeneral: r.estadoGeneral,
       saludPorcentaje: r.saludPorcentaje,
       totalPlagasDetectadas: r.totalPlagasDetectadas,
+      esAlerta: r.esAlerta,
       detecciones: r.detecciones,
       recomendaciones: r.recomendaciones,
       tiempoProcesamientoMs: r.tiempoProcesamientoMs,
@@ -76,6 +77,10 @@ export class PrismaDiagnosticoCampoRepository implements IDiagnosticoCampoReposi
 
     if (filtros?.estadoGeneral) {
       where.estadoGeneral = filtros.estadoGeneral as any;
+    }
+
+    if (filtros?.esAlerta !== undefined) {
+      where.esAlerta = filtros.esAlerta;
     }
 
     const pagina = filtros?.pagina && filtros.pagina > 0 ? filtros.pagina : 1;
@@ -144,6 +149,7 @@ export class PrismaDiagnosticoCampoRepository implements IDiagnosticoCampoReposi
         estadoGeneral: d.estadoGeneral,
         saludPorcentaje: d.saludPorcentaje,
         totalPlagasDetectadas: d.totalPlagasDetectadas,
+        esAlerta: d.esAlerta,
         detecciones: (d.detecciones as Prisma.InputJsonValue) ?? [],
         recomendaciones: (d.recomendaciones as Prisma.InputJsonValue) ?? [],
         tiempoProcesamientoMs: d.tiempoProcesamientoMs || null,

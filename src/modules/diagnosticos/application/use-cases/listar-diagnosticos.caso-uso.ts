@@ -24,6 +24,7 @@ export class ListarDiagnosticosCasoUso {
       parcelaId: filtros.parcelaId,
       sectorId: filtros.sectorId,
       estadoGeneral: filtros.estadoGeneral,
+      esAlerta: filtros.esAlerta,
       pagina,
       limite,
     });

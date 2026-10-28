@@ -32,6 +32,13 @@ export class RegistrarDiagnosticoCasoUso {
     const anio = new Date().getFullYear();
     const codigo = `DIAG-${anio}-${correlativo}`;
 
+    const esAlerta =
+      dto.esAlerta !== undefined
+        ? dto.esAlerta
+        : (dto.estadoGeneral === 'ALERTA' ||
+           dto.estadoGeneral === 'CRITICO' ||
+           dto.totalPlagasDetectadas > 0);
+
     const nuevoDiagnostico = new DiagnosticoCampo({
       id: randomUUID(),
       codigo,
@@ -43,6 +50,7 @@ export class RegistrarDiagnosticoCasoUso {
       estadoGeneral: dto.estadoGeneral,
       saludPorcentaje: dto.saludPorcentaje,
       totalPlagasDetectadas: dto.totalPlagasDetectadas,
+      esAlerta,
       detecciones: dto.detecciones ?? [],
       recomendaciones: dto.recomendaciones ?? [],
       tiempoProcesamientoMs: dto.tiempoProcesamientoMs || null,

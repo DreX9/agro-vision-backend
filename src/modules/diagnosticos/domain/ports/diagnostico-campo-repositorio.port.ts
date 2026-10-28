@@ -4,6 +4,7 @@ export interface FiltrosListarDiagnosticos {
   parcelaId?: string;
   sectorId?: string;
   estadoGeneral?: string;
+  esAlerta?: boolean;
   pagina?: number;
   limite?: number;
 }

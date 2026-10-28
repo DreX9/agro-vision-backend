@@ -18,6 +18,7 @@ export interface DiagnosticoCampoProps {
   estadoGeneral: EstadoSaludFoliar;
   saludPorcentaje: number;
   totalPlagasDetectadas: number;
+  esAlerta: boolean;
   detecciones: unknown;
   recomendaciones: unknown;
   tiempoProcesamientoMs?: number | null;
@@ -104,6 +105,10 @@ export class DiagnosticoCampo {
 
   get totalPlagasDetectadas(): number {
     return this.props.totalPlagasDetectadas;
+  }
+
+  get esAlerta(): boolean {
+    return this.props.esAlerta;
   }
 
   get detecciones(): unknown {

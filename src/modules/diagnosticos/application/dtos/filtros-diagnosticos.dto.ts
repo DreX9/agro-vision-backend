@@ -1,6 +1,6 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IsOptional, IsUUID, IsString, IsInt, Min } from 'class-validator';
-import { Type } from 'class-transformer';
+import { IsOptional, IsUUID, IsString, IsInt, IsBoolean, Min } from 'class-validator';
+import { Type, Transform } from 'class-transformer';
 
 export class FiltrosDiagnosticosDto {
   @ApiPropertyOptional({ description: 'Filtrar por Parcela' })
@@ -17,6 +17,16 @@ export class FiltrosDiagnosticosDto {
   @IsOptional()
   @IsString()
   estadoGeneral?: string;
+
+  @ApiPropertyOptional({ description: 'Filtrar si constituye alerta fitosanitaria (true o false)' })
+  @IsOptional()
+  @Transform(({ value }) => {
+    if (value === 'true' || value === true) return true;
+    if (value === 'false' || value === false) return false;
+    return undefined;
+  })
+  @IsBoolean()
+  esAlerta?: boolean;
 
   @ApiPropertyOptional({ description: 'Número de página', default: 1 })
   @IsOptional()

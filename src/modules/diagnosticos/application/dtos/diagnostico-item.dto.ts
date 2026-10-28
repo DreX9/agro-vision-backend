@@ -54,6 +54,9 @@ export class DiagnosticoItemDto {
   @ApiProperty()
   totalPlagasDetectadas!: number;
 
+  @ApiProperty({ description: 'Indica si el diagnóstico constituye una alerta fitosanitaria' })
+  esAlerta!: boolean;
+
   @ApiPropertyOptional()
   detecciones?: unknown;
 
@@ -97,6 +100,7 @@ export class DiagnosticoItemDto {
       estadoGeneral: e.estadoGeneral,
       saludPorcentaje: e.saludPorcentaje,
       totalPlagasDetectadas: e.totalPlagasDetectadas,
+      esAlerta: e.esAlerta,
       detecciones: e.detecciones,
       recomendaciones: e.recomendaciones,
       tiempoProcesamientoMs: e.tiempoProcesamientoMs,

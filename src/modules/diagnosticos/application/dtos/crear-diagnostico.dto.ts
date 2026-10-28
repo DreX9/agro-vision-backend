@@ -6,6 +6,7 @@ import {
   IsOptional,
   IsEnum,
   IsArray,
+  IsBoolean,
   Min,
   Max,
 } from 'class-validator';
@@ -51,6 +52,14 @@ export class CrearDiagnosticoDto {
   @ApiProperty({ description: 'Cantidad total de plagas o patógenos detectados', example: 1 })
   @IsNumber({}, { message: 'El total de plagas debe ser un número' })
   totalPlagasDetectadas!: number;
+
+  @ApiPropertyOptional({
+    description: 'Indica si el diagnóstico califica como alerta fitosanitaria (automático si hay plagas o estado crítico)',
+    example: true,
+  })
+  @IsOptional()
+  @IsBoolean()
+  esAlerta?: boolean;
 
   @ApiPropertyOptional({ description: 'Detecciones con bounding boxes y confianza devueltas por IA' })
   @IsOptional()
