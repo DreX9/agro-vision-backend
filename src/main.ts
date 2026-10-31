@@ -39,7 +39,7 @@ async function bootstrap() {
   SwaggerModule.setup('api/docs', app, document);
 
   const puerto = process.env.PORT ?? 3000;
-  await app.listen(puerto);
+  await app.listen(puerto, '0.0.0.0');
   console.log(`🚀 Agro Vision Backend ejecutándose en http://localhost:${puerto}/api/v1`);
   console.log(`📄 Documentación Swagger interactiva en http://localhost:${puerto}/api/docs`);
 }
