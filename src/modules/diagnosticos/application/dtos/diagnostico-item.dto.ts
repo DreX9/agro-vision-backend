@@ -51,6 +51,15 @@ export class DiagnosticoItemDto {
   @ApiPropertyOptional({ description: 'Rol jerárquico destinatario inmediato de la alerta' })
   destinatarioRol?: string | null;
 
+  @ApiPropertyOptional({ description: 'Código de la actividad o labor en curso' })
+  actividadCodigo?: string | null;
+
+  @ApiPropertyOptional({ description: 'Título de la actividad o labor en curso' })
+  actividadTitulo?: string | null;
+
+  @ApiPropertyOptional({ description: 'Tipo de labor agrícola en curso' })
+  actividadTipo?: string | null;
+
   @ApiProperty()
   latitud!: number;
 
@@ -110,6 +119,9 @@ export class DiagnosticoItemDto {
       usuarioRol: e.usuarioRol,
       supervisorId: e.supervisorId,
       supervisorNombre: e.supervisorNombre,
+      actividadCodigo: e.actividadCodigo,
+      actividadTitulo: e.actividadTitulo,
+      actividadTipo: e.actividadTipo,
       destinatarioRol:
         e.usuarioRol === 'OPERADOR'
           ? 'SUPERVISOR'

@@ -1,5 +1,6 @@
-import { Injectable, Inject, NotFoundException } from '@nestjs/common';
+import { Injectable, Inject, Optional, NotFoundException } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
+import { PrismaService } from '@/prisma/prisma.service.js';
 import { DiagnosticoCampo } from '../../domain/entities/diagnostico-campo.entity.js';
 import {
   DIAGNOSTICO_CAMPO_REPOSITORIO_PORT,
@@ -21,6 +22,8 @@ export class RegistrarDiagnosticoCasoUso {
     @Inject(PARCELA_REPOSITORIO_PORT)
     private readonly parcelaRepositorio: IParcelaRepositorio,
     private readonly alertasService: AlertasFitosanitariasService,
+    @Optional()
+    private readonly prisma?: PrismaService,
   ) {}
 
   async ejecutar(dto: CrearDiagnosticoDto): Promise<DiagnosticoItemDto> {
@@ -41,6 +44,51 @@ export class RegistrarDiagnosticoCasoUso {
            dto.estadoGeneral === 'CRITICO' ||
            dto.totalPlagasDetectadas > 0);
 
+    // Detección automática en segundo plano de la labor agrícola que realizaba el trabajador
+    let actividadCodigo: string | null = null;
+    let actividadTitulo: string | null = null;
+    let actividadTipo: string | null = null;
+    let supervisorAsignadoId: string | null = null;
+    let supervisorAsignadoNombre: string | null = null;
+
+    if (this.prisma && dto.usuarioId) {
+      try {
+        const asignacion = await this.prisma.actividadTrabajador.findFirst({
+          where: {
+            usuarioId: dto.usuarioId,
+            actividad: {
+              estado: { in: ['PENDIENTE', 'EN_PROGRESO'] },
+            },
+          },
+          include: {
+            actividad: {
+              include: {
+                usuarioResponsable: { select: { id: true, nombres: true, apellidos: true } },
+              },
+            },
+          },
+          orderBy: { createdAt: 'desc' },
+        });
+
+        if (asignacion?.actividad) {
+          actividadCodigo = asignacion.actividad.codigo;
+          actividadTitulo = asignacion.actividad.titulo;
+          actividadTipo = String(asignacion.actividad.tipo);
+          if (asignacion.actividad.usuarioResponsable) {
+            supervisorAsignadoId = asignacion.actividad.usuarioResponsable.id;
+            supervisorAsignadoNombre = `${asignacion.actividad.usuarioResponsable.nombres} ${asignacion.actividad.usuarioResponsable.apellidos}`.trim();
+          }
+        }
+      } catch {
+        // Silencioso para no bloquear registro
+      }
+    }
+
+    let observacionesFinal = dto.observaciones || null;
+    if (actividadTitulo && (!dto.observaciones || !dto.observaciones.includes(actividadTitulo))) {
+      observacionesFinal = `[Labor en curso: ${actividadTitulo} (${actividadCodigo})] ${dto.observaciones || ''}`.trim();
+    }
+
     const nuevoDiagnostico = new DiagnosticoCampo({
       id: randomUUID(),
       codigo,
@@ -58,7 +106,7 @@ export class RegistrarDiagnosticoCasoUso {
       tiempoProcesamientoMs: dto.tiempoProcesamientoMs || null,
       imagenUrl: dto.imagenUrl || null,
       origenCaptura: dto.origenCaptura || 'DRON_SIMULADO',
-      observaciones: dto.observaciones || null,
+      observaciones: observacionesFinal,
       createdAt: new Date(),
       updatedAt: new Date(),
     });
@@ -66,7 +114,18 @@ export class RegistrarDiagnosticoCasoUso {
     const guardado = await this.diagnosticoRepositorio.crear(nuevoDiagnostico);
     const resultado = DiagnosticoItemDto.desdeEntidad(guardado);
 
-    // Si constituye una alerta fitosanitaria, notificar en tiempo real a los agrónomos
+    // Enriquecer DTO de respuesta con detalles detectados en segundo plano
+    if (actividadTitulo) {
+      resultado.actividadTitulo = actividadTitulo;
+      resultado.actividadCodigo = actividadCodigo;
+      resultado.actividadTipo = actividadTipo;
+    }
+    if (supervisorAsignadoId) {
+      resultado.supervisorId = supervisorAsignadoId;
+      resultado.supervisorNombre = supervisorAsignadoNombre;
+    }
+
+    // Si constituye una alerta fitosanitaria, notificar en tiempo real al supervisor y agrónomos
     if (guardado.esAlerta) {
       this.alertasService.emitirAlerta(resultado);
     }

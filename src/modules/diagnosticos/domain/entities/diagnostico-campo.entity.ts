@@ -16,6 +16,9 @@ export interface DiagnosticoCampoProps {
   usuarioRol?: string | null;
   supervisorId?: string | null;
   supervisorNombre?: string | null;
+  actividadCodigo?: string | null;
+  actividadTitulo?: string | null;
+  actividadTipo?: string | null;
   latitud: number;
   longitud: number;
   estadoGeneral: EstadoSaludFoliar;
@@ -100,6 +103,18 @@ export class DiagnosticoCampo {
 
   get supervisorNombre(): string | null | undefined {
     return this.props.supervisorNombre;
+  }
+
+  get actividadCodigo(): string | null | undefined {
+    return this.props.actividadCodigo;
+  }
+
+  get actividadTitulo(): string | null | undefined {
+    return this.props.actividadTitulo;
+  }
+
+  get actividadTipo(): string | null | undefined {
+    return this.props.actividadTipo;
   }
 
   get latitud(): number {
