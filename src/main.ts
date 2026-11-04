@@ -1,13 +1,20 @@
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import type { NestExpressApplication } from '@nestjs/platform-express';
 import { AppModule } from './app.module.js';
 
 /**
  * @description Inicialización del servidor backend de Agro Vision.
  */
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
+    bodyParser: false,
+  });
+
+  // Aumentar el límite del body para permitir capturas de fotos fitosanitarias en base64
+  app.useBodyParser('json', { limit: '25mb' });
+  app.useBodyParser('urlencoded', { extended: true, limit: '25mb' });
 
   // Habilitar CORS para permitir peticiones desde Expo Web y Móvil
   app.enableCors({

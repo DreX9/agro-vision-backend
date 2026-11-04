@@ -9,7 +9,14 @@ import {
 
 type PrismaDiagnosticoConRelaciones = Prisma.DiagnosticoCampoGetPayload<{
   include: {
-    parcela: { select: { nombre: true; codigo: true } };
+    parcela: {
+      select: {
+        nombre: true;
+        codigo: true;
+        usuarioResponsableId: true;
+        usuarioResponsable: { select: { nombres: true; apellidos: true; rol: true } };
+      };
+    };
     sector: {
       select: {
         nombre: true;
@@ -18,7 +25,7 @@ type PrismaDiagnosticoConRelaciones = Prisma.DiagnosticoCampoGetPayload<{
         cultivo: { select: { nombre: true } };
       };
     };
-    usuario: { select: { nombres: true; apellidos: true } };
+    usuario: { select: { nombres: true; apellidos: true; rol: true } };
   };
 }>;
 
@@ -32,6 +39,9 @@ export class PrismaDiagnosticoCampoRepository implements IDiagnosticoCampoReposi
   private mapearAEntidad(r: PrismaDiagnosticoConRelaciones): DiagnosticoCampo {
     const usuarioNombre = r.usuario
       ? `${r.usuario.nombres} ${r.usuario.apellidos}`.trim()
+      : null;
+    const supervisorNombre = r.parcela?.usuarioResponsable
+      ? `${r.parcela.usuarioResponsable.nombres} ${r.parcela.usuarioResponsable.apellidos}`.trim()
       : null;
 
     return new DiagnosticoCampo({
@@ -47,6 +57,9 @@ export class PrismaDiagnosticoCampoRepository implements IDiagnosticoCampoReposi
       cultivoVariedad: r.sector?.variedad,
       usuarioId: r.usuarioId,
       usuarioNombre: usuarioNombre,
+      usuarioRol: r.usuario?.rol || null,
+      supervisorId: r.parcela?.usuarioResponsableId || null,
+      supervisorNombre: supervisorNombre,
       latitud: Number(r.latitud),
       longitud: Number(r.longitud),
       estadoGeneral: r.estadoGeneral,
@@ -95,7 +108,14 @@ export class PrismaDiagnosticoCampoRepository implements IDiagnosticoCampoReposi
         take: limite,
         orderBy: { createdAt: 'desc' },
         include: {
-          parcela: { select: { nombre: true, codigo: true } },
+          parcela: {
+            select: {
+              nombre: true,
+              codigo: true,
+              usuarioResponsableId: true,
+              usuarioResponsable: { select: { nombres: true, apellidos: true, rol: true } },
+            },
+          },
           sector: {
             select: {
               nombre: true,
@@ -104,7 +124,7 @@ export class PrismaDiagnosticoCampoRepository implements IDiagnosticoCampoReposi
               cultivo: { select: { nombre: true } },
             },
           },
-          usuario: { select: { nombres: true, apellidos: true } },
+          usuario: { select: { nombres: true, apellidos: true, rol: true } },
         },
       }),
     ]);
@@ -119,7 +139,14 @@ export class PrismaDiagnosticoCampoRepository implements IDiagnosticoCampoReposi
     const r = await this.prisma.diagnosticoCampo.findUnique({
       where: { id },
       include: {
-        parcela: { select: { nombre: true, codigo: true } },
+        parcela: {
+          select: {
+            nombre: true,
+            codigo: true,
+            usuarioResponsableId: true,
+            usuarioResponsable: { select: { nombres: true, apellidos: true, rol: true } },
+          },
+        },
         sector: {
           select: {
             nombre: true,
@@ -128,7 +155,7 @@ export class PrismaDiagnosticoCampoRepository implements IDiagnosticoCampoReposi
             cultivo: { select: { nombre: true } },
           },
         },
-        usuario: { select: { nombres: true, apellidos: true } },
+        usuario: { select: { nombres: true, apellidos: true, rol: true } },
       },
     });
 
@@ -158,7 +185,14 @@ export class PrismaDiagnosticoCampoRepository implements IDiagnosticoCampoReposi
         observaciones: d.observaciones || null,
       },
       include: {
-        parcela: { select: { nombre: true, codigo: true } },
+        parcela: {
+          select: {
+            nombre: true,
+            codigo: true,
+            usuarioResponsableId: true,
+            usuarioResponsable: { select: { nombres: true, apellidos: true, rol: true } },
+          },
+        },
         sector: {
           select: {
             nombre: true,
@@ -167,7 +201,7 @@ export class PrismaDiagnosticoCampoRepository implements IDiagnosticoCampoReposi
             cultivo: { select: { nombre: true } },
           },
         },
-        usuario: { select: { nombres: true, apellidos: true } },
+        usuario: { select: { nombres: true, apellidos: true, rol: true } },
       },
     });
 
