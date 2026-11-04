@@ -39,6 +39,18 @@ export class DiagnosticoItemDto {
   @ApiPropertyOptional()
   usuarioNombre?: string | null;
 
+  @ApiPropertyOptional({ description: 'Rol del usuario que reportó el hallazgo' })
+  usuarioRol?: string | null;
+
+  @ApiPropertyOptional({ description: 'ID del supervisor responsable de la parcela' })
+  supervisorId?: string | null;
+
+  @ApiPropertyOptional({ description: 'Nombre del supervisor responsable de la parcela' })
+  supervisorNombre?: string | null;
+
+  @ApiPropertyOptional({ description: 'Rol jerárquico destinatario inmediato de la alerta' })
+  destinatarioRol?: string | null;
+
   @ApiProperty()
   latitud!: number;
 
@@ -95,6 +107,15 @@ export class DiagnosticoItemDto {
       cultivoVariedad: e.cultivoVariedad,
       usuarioId: e.usuarioId,
       usuarioNombre: e.usuarioNombre,
+      usuarioRol: e.usuarioRol,
+      supervisorId: e.supervisorId,
+      supervisorNombre: e.supervisorNombre,
+      destinatarioRol:
+        e.usuarioRol === 'OPERADOR'
+          ? 'SUPERVISOR'
+          : e.usuarioRol === 'SUPERVISOR'
+            ? 'AGRONOMO'
+            : 'ADMINISTRADOR',
       latitud: e.latitud,
       longitud: e.longitud,
       estadoGeneral: e.estadoGeneral,

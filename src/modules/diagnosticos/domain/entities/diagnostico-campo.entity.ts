@@ -13,6 +13,9 @@ export interface DiagnosticoCampoProps {
   cultivoVariedad?: string | null;
   usuarioId?: string | null;
   usuarioNombre?: string | null;
+  usuarioRol?: string | null;
+  supervisorId?: string | null;
+  supervisorNombre?: string | null;
   latitud: number;
   longitud: number;
   estadoGeneral: EstadoSaludFoliar;
@@ -85,6 +88,18 @@ export class DiagnosticoCampo {
 
   get usuarioNombre(): string | null | undefined {
     return this.props.usuarioNombre;
+  }
+
+  get usuarioRol(): string | null | undefined {
+    return this.props.usuarioRol;
+  }
+
+  get supervisorId(): string | null | undefined {
+    return this.props.supervisorId;
+  }
+
+  get supervisorNombre(): string | null | undefined {
+    return this.props.supervisorNombre;
   }
 
   get latitud(): number {
