@@ -37,6 +37,7 @@ import {
   ActividadCodigoYaExisteError,
   ActividadNoEncontradaError,
   ConflictoDisponibilidadTrabajadorError,
+  ConflictoDisponibilidadSupervisorError,
 } from '../../domain/errors/actividad.errors.js';
 import { ValidadorDisponibilidadService } from '../../application/services/validador-disponibilidad.service.js';
 
@@ -164,7 +165,8 @@ export class ActividadesController {
       const error = resultado.error;
       if (
         error instanceof ActividadCodigoYaExisteError ||
-        error instanceof ConflictoDisponibilidadTrabajadorError
+        error instanceof ConflictoDisponibilidadTrabajadorError ||
+        error instanceof ConflictoDisponibilidadSupervisorError
       ) {
         throw new ConflictException(error.message);
       }
@@ -223,7 +225,7 @@ export class ActividadesController {
       if (error instanceof ActividadNoEncontradaError) {
         throw new NotFoundException(error.message);
       }
-      if (error instanceof ConflictoDisponibilidadTrabajadorError) {
+      if (error instanceof ConflictoDisponibilidadTrabajadorError || error instanceof ConflictoDisponibilidadSupervisorError) {
         throw new ConflictException(error.message);
       }
       throw new BadRequestException(error.message);

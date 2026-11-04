@@ -12,6 +12,7 @@ import {
   ActividadError,
   ActividadCodigoYaExisteError,
   ConflictoDisponibilidadTrabajadorError,
+  ConflictoDisponibilidadSupervisorError,
 } from '../../domain/errors/actividad.errors.js';
 import { ValidadorDisponibilidadService } from '../services/validador-disponibilidad.service.js';
 
@@ -50,6 +51,18 @@ export class RegistrarActividadCasoUso {
         return Result.fail(new ConflictoDisponibilidadTrabajadorError(primerConflicto.mensaje));
       }
     }
+    if (comando.usuarioResponsableId && typeof this.validadorDisponibilidad.validarSupervisor === 'function') {
+      const validacionSup = await this.validadorDisponibilidad.validarSupervisor(
+        comando.usuarioResponsableId,
+        comando.fechaInicio,
+        comando.fechaFin,
+      );
+      if (!validacionSup.esValido && validacionSup.mensaje) {
+        this.logger.warn(`Conflicto de supervisor detectado: ${validacionSup.mensaje}`);
+        return Result.fail(new ConflictoDisponibilidadSupervisorError(validacionSup.mensaje));
+      }
+    }
+
     let codigo = comando.codigo?.trim().toUpperCase();
 
     if (!codigo) {

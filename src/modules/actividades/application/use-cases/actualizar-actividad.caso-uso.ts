@@ -11,6 +11,7 @@ import {
   ActividadError,
   ActividadNoEncontradaError,
   ConflictoDisponibilidadTrabajadorError,
+  ConflictoDisponibilidadSupervisorError,
 } from '../../domain/errors/actividad.errors.js';
 import { ValidadorDisponibilidadService } from '../services/validador-disponibilidad.service.js';
 
@@ -59,6 +60,20 @@ export class ActualizarActividadCasoUso {
         const primerConflicto = validacion.conflictos[0];
         this.logger.warn(`Conflicto de disponibilidad detectado: ${primerConflicto.mensaje}`);
         return Result.fail(new ConflictoDisponibilidadTrabajadorError(primerConflicto.mensaje));
+      }
+    }
+
+    const supervisorIdDestino = comando.usuarioResponsableId !== undefined ? comando.usuarioResponsableId : actividadExistente.usuarioResponsableId;
+    if (supervisorIdDestino && typeof this.validadorDisponibilidad.validarSupervisor === 'function') {
+      const validacionSup = await this.validadorDisponibilidad.validarSupervisor(
+        supervisorIdDestino,
+        fechaInicio,
+        fechaFin,
+        comando.id,
+      );
+      if (!validacionSup.esValido && validacionSup.mensaje) {
+        this.logger.warn(`Conflicto de supervisor detectado: ${validacionSup.mensaje}`);
+        return Result.fail(new ConflictoDisponibilidadSupervisorError(validacionSup.mensaje));
       }
     }
 
