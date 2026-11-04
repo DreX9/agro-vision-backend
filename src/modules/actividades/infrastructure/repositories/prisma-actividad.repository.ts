@@ -56,6 +56,10 @@ export class PrismaActividadRepository implements IActividadRepositorio {
       tipo: r.tipo,
       descripcion: r.descripcion,
       observaciones: r.observaciones,
+      blancoBiologico: r.blancoBiologico,
+      metodoAplicacion: r.metodoAplicacion,
+      diasCarencia: r.diasCarencia,
+      horasReingreso: r.horasReingreso,
       parcelaId: r.parcelaId,
       parcelaNombre: r.parcela?.nombre,
       sectorId: r.sectorId ?? sector?.id ?? null,
@@ -74,14 +78,19 @@ export class PrismaActividadRepository implements IActividadRepositorio {
         apellidos: t.usuario?.apellidos,
         rolEnActividad: t.rolEnActividad,
         telefono: t.usuario?.telefono,
+        horaInicio: t.horaInicio,
+        horaFin: t.horaFin,
+        horasAsignadas: t.horasAsignadas ? Number(t.horasAsignadas) : null,
       })),
       recursos: (r.recursos || []).map((rec: any) => ({
         id: rec.id,
         insumoId: rec.insumoId,
-        nombreInsumo: rec.insumo.nombre,
-        categoriaInsumo: rec.insumo.categoria,
+        nombreInsumo: rec.insumo?.nombre || 'Insumo',
+        categoriaInsumo: rec.insumo?.categoria || 'OTRO',
         cantidadEstimada: Number(rec.cantidadEstimada),
         unidadMedida: rec.unidadMedida,
+        dosis: rec.dosis ?? null,
+        cantidadReal: rec.cantidadReal !== null && rec.cantidadReal !== undefined ? Number(rec.cantidadReal) : null,
         notas: rec.notas,
       })),
       createdAt: r.createdAt,
@@ -100,27 +109,49 @@ export class PrismaActividadRepository implements IActividadRepositorio {
         { titulo: { contains: termino, mode: 'insensitive' } },
         { codigo: { contains: termino, mode: 'insensitive' } },
         { descripcion: { contains: termino, mode: 'insensitive' } },
-        { parcela: { nombre: { contains: termino, mode: 'insensitive' } } },
+        { blancoBiologico: { contains: termino, mode: 'insensitive' } },
       ];
     }
-    if (filtros?.parcelaId) where.parcelaId = filtros.parcelaId;
-    if (filtros?.tipo) where.tipo = filtros.tipo as TipoActividad;
-    if (filtros?.estado) where.estado = filtros.estado as EstadoActividad;
-    if (filtros?.usuarioResponsableId) where.usuarioResponsableId = filtros.usuarioResponsableId;
 
-    const pagina = filtros?.pagina && filtros.pagina > 0 ? filtros.pagina : 1;
-    const limite = filtros?.limite && filtros.limite > 0 ? filtros.limite : 10;
+    if (filtros?.parcelaId) {
+      where.parcelaId = filtros.parcelaId;
+    }
+
+    if (filtros?.tipo) {
+      where.tipo = filtros.tipo as TipoActividad;
+    }
+
+    if (filtros?.estado) {
+      where.estado = filtros.estado as EstadoActividad;
+    }
+
+    if (filtros?.usuarioResponsableId) {
+      where.usuarioResponsableId = filtros.usuarioResponsableId;
+    }
+
+    if (filtros?.fechaDesde || filtros?.fechaHasta) {
+      where.fechaInicio = {};
+      if (filtros.fechaDesde) {
+        where.fechaInicio.gte = filtros.fechaDesde;
+      }
+      if (filtros.fechaHasta) {
+        where.fechaInicio.lte = filtros.fechaHasta;
+      }
+    }
+
+    const pagina = Math.max(1, filtros?.pagina || 1);
+    const limite = Math.min(100, Math.max(1, filtros?.limite || 10));
     const skip = (pagina - 1) * limite;
 
-    const [registros, total] = await Promise.all([
+    const [total, registros] = await Promise.all([
+      this.prisma.actividadAgricola.count({ where }),
       this.prisma.actividadAgricola.findMany({
         where,
+        include: INCLUSION_COMPLETA,
+        orderBy: { fechaInicio: 'desc' },
         skip,
         take: limite,
-        orderBy: { fechaInicio: 'desc' },
-        include: INCLUSION_COMPLETA,
       }),
-      this.prisma.actividadAgricola.count({ where }),
     ]);
 
     return {
@@ -130,18 +161,20 @@ export class PrismaActividadRepository implements IActividadRepositorio {
   }
 
   async buscarPorId(id: string): Promise<ActividadAgricola | null> {
-    const registro = await this.prisma.actividadAgricola.findUnique({
+    const registro = await this.prisma.actividadAgricola.findFirst({
       where: { id, deletedAt: null },
       include: INCLUSION_COMPLETA,
     });
+
     return registro ? this.mapearAEntidad(registro) : null;
   }
 
   async buscarPorCodigo(codigo: string): Promise<ActividadAgricola | null> {
     const registro = await this.prisma.actividadAgricola.findFirst({
-      where: { codigo: { equals: codigo, mode: 'insensitive' }, deletedAt: null },
+      where: { codigo: codigo.toUpperCase(), deletedAt: null },
       include: INCLUSION_COMPLETA,
     });
+
     return registro ? this.mapearAEntidad(registro) : null;
   }
 
@@ -157,6 +190,10 @@ export class PrismaActividadRepository implements IActividadRepositorio {
         tipo: actividad.tipo,
         descripcion: actividad.descripcion ?? null,
         observaciones: actividad.observaciones ?? null,
+        blancoBiologico: actividad.blancoBiologico ?? null,
+        metodoAplicacion: actividad.metodoAplicacion ?? null,
+        diasCarencia: actividad.diasCarencia ?? null,
+        horasReingreso: actividad.horasReingreso ?? null,
         fechaInicio: actividad.fechaInicio,
         fechaFin: actividad.fechaFin ?? null,
         estado: actividad.estado,
@@ -181,6 +218,8 @@ export class PrismaActividadRepository implements IActividadRepositorio {
             insumoId: r.insumoId,
             cantidadEstimada: r.cantidadEstimada,
             unidadMedida: r.unidadMedida,
+            dosis: r.dosis ?? null,
+            cantidadReal: r.cantidadReal ?? null,
             notas: r.notas ?? null,
           })),
         },
@@ -219,6 +258,8 @@ export class PrismaActividadRepository implements IActividadRepositorio {
             insumoId: r.insumoId,
             cantidadEstimada: r.cantidadEstimada,
             unidadMedida: r.unidadMedida,
+            dosis: r.dosis ?? null,
+            cantidadReal: r.cantidadReal ?? null,
             notas: r.notas ?? null,
           })),
         });
@@ -231,6 +272,10 @@ export class PrismaActividadRepository implements IActividadRepositorio {
           tipo: actividad.tipo,
           descripcion: actividad.descripcion ?? null,
           observaciones: actividad.observaciones ?? null,
+          blancoBiologico: actividad.blancoBiologico !== undefined ? actividad.blancoBiologico : undefined,
+          metodoAplicacion: actividad.metodoAplicacion !== undefined ? actividad.metodoAplicacion : undefined,
+          diasCarencia: actividad.diasCarencia !== undefined ? actividad.diasCarencia : undefined,
+          horasReingreso: actividad.horasReingreso !== undefined ? actividad.horasReingreso : undefined,
           fechaInicio: actividad.fechaInicio,
           fechaFin: actividad.fechaFin ?? null,
           estado: actividad.estado,

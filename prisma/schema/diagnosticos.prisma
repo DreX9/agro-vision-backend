@@ -30,6 +30,7 @@ model DiagnosticoCampo {
   estadoGeneral         EstadoSaludFoliar @default(OPTIMO) @map("estado_general")
   saludPorcentaje       Int               @default(100) @map("salud_porcentaje")
   totalPlagasDetectadas Int               @default(0) @map("total_plagas_detectadas")
+  esAlerta              Boolean           @default(false) @map("es_alerta")
 
   detecciones           Json              @default("[]") @map("detecciones")
   recomendaciones       Json              @default("[]") @map("recomendaciones")
@@ -44,6 +45,7 @@ model DiagnosticoCampo {
   @@index([parcelaId])
   @@index([sectorId])
   @@index([usuarioId])
+  @@index([esAlerta])
   @@index([createdAt])
   @@map("diagnosticos_campo")
   @@schema("diagnosticos")

@@ -11,6 +11,7 @@ import {
   ActividadError,
   ActividadNoEncontradaError,
   ConflictoDisponibilidadTrabajadorError,
+  ConflictoDisponibilidadSupervisorError,
 } from '../../domain/errors/actividad.errors.js';
 import { ValidadorDisponibilidadService } from '../services/validador-disponibilidad.service.js';
 
@@ -62,6 +63,20 @@ export class ActualizarActividadCasoUso {
       }
     }
 
+    const supervisorIdDestino = comando.usuarioResponsableId !== undefined ? comando.usuarioResponsableId : actividadExistente.usuarioResponsableId;
+    if (supervisorIdDestino && typeof this.validadorDisponibilidad.validarSupervisor === 'function') {
+      const validacionSup = await this.validadorDisponibilidad.validarSupervisor(
+        supervisorIdDestino,
+        fechaInicio,
+        fechaFin,
+        comando.id,
+      );
+      if (!validacionSup.esValido && validacionSup.mensaje) {
+        this.logger.warn(`Conflicto de supervisor detectado: ${validacionSup.mensaje}`);
+        return Result.fail(new ConflictoDisponibilidadSupervisorError(validacionSup.mensaje));
+      }
+    }
+
     const entidadActualizada = new ActividadAgricola({
       id: actividadExistente.id,
       codigo: actividadExistente.codigo,
@@ -69,6 +84,14 @@ export class ActualizarActividadCasoUso {
       tipo: comando.tipo ?? actividadExistente.tipo,
       descripcion: comando.descripcion !== undefined ? comando.descripcion : actividadExistente.descripcion,
       observaciones: comando.observaciones !== undefined ? comando.observaciones : actividadExistente.observaciones,
+      blancoBiologico:
+        comando.blancoBiologico !== undefined ? comando.blancoBiologico : actividadExistente.blancoBiologico,
+      metodoAplicacion:
+        comando.metodoAplicacion !== undefined ? comando.metodoAplicacion : actividadExistente.metodoAplicacion,
+      diasCarencia:
+        comando.diasCarencia !== undefined ? comando.diasCarencia : actividadExistente.diasCarencia,
+      horasReingreso:
+        comando.horasReingreso !== undefined ? comando.horasReingreso : actividadExistente.horasReingreso,
       parcelaId: comando.parcelaId ?? actividadExistente.parcelaId,
       sectorId: comando.sectorId !== undefined ? comando.sectorId : actividadExistente.sectorId,
       usuarioResponsableId:

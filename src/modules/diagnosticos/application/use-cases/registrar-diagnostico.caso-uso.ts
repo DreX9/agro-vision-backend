@@ -11,6 +11,7 @@ import {
 } from '../../../parcelas/domain/ports/parcela-repositorio.port.js';
 import { CrearDiagnosticoDto } from '../dtos/crear-diagnostico.dto.js';
 import { DiagnosticoItemDto } from '../dtos/diagnostico-item.dto.js';
+import { AlertasFitosanitariasService } from '../services/alertas-fitosanitarias.service.js';
 
 @Injectable()
 export class RegistrarDiagnosticoCasoUso {
@@ -19,6 +20,7 @@ export class RegistrarDiagnosticoCasoUso {
     private readonly diagnosticoRepositorio: IDiagnosticoCampoRepositorio,
     @Inject(PARCELA_REPOSITORIO_PORT)
     private readonly parcelaRepositorio: IParcelaRepositorio,
+    private readonly alertasService: AlertasFitosanitariasService,
   ) {}
 
   async ejecutar(dto: CrearDiagnosticoDto): Promise<DiagnosticoItemDto> {
@@ -32,6 +34,13 @@ export class RegistrarDiagnosticoCasoUso {
     const anio = new Date().getFullYear();
     const codigo = `DIAG-${anio}-${correlativo}`;
 
+    const esAlerta =
+      dto.esAlerta !== undefined
+        ? dto.esAlerta
+        : (dto.estadoGeneral === 'ALERTA' ||
+           dto.estadoGeneral === 'CRITICO' ||
+           dto.totalPlagasDetectadas > 0);
+
     const nuevoDiagnostico = new DiagnosticoCampo({
       id: randomUUID(),
       codigo,
@@ -43,6 +52,7 @@ export class RegistrarDiagnosticoCasoUso {
       estadoGeneral: dto.estadoGeneral,
       saludPorcentaje: dto.saludPorcentaje,
       totalPlagasDetectadas: dto.totalPlagasDetectadas,
+      esAlerta,
       detecciones: dto.detecciones ?? [],
       recomendaciones: dto.recomendaciones ?? [],
       tiempoProcesamientoMs: dto.tiempoProcesamientoMs || null,
@@ -54,6 +64,13 @@ export class RegistrarDiagnosticoCasoUso {
     });
 
     const guardado = await this.diagnosticoRepositorio.crear(nuevoDiagnostico);
-    return DiagnosticoItemDto.desdeEntidad(guardado);
+    const resultado = DiagnosticoItemDto.desdeEntidad(guardado);
+
+    // Si constituye una alerta fitosanitaria, notificar en tiempo real a los agrónomos
+    if (guardado.esAlerta) {
+      this.alertasService.emitirAlerta(resultado);
+    }
+
+    return resultado;
   }
 }

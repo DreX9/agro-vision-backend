@@ -288,4 +288,56 @@ export class ValidadorDisponibilidadService {
       conflictos,
     };
   }
+
+  /**
+   * @description Valida que un supervisor de campo no tenga dos actividades asignadas
+   * en el mismo lapso de tiempo o con solapamiento horario.
+   */
+  async validarSupervisor(
+    supervisorId: string,
+    fechaInicio: Date,
+    fechaFin?: Date | null,
+    excluirActividadId?: string,
+  ): Promise<{ esValido: boolean; mensaje?: string }> {
+    if (!supervisorId) {
+      return { esValido: true };
+    }
+
+    const ventanaDesde = new Date(fechaInicio.getTime());
+    const ventanaHasta = fechaFin ? new Date(fechaFin.getTime()) : new Date(fechaInicio.getTime() + 5 * 3600 * 1000);
+
+    const asignacionSupervisor = await this.prisma.actividadAgricola.findFirst({
+      where: {
+        usuarioResponsableId: supervisorId,
+        deletedAt: null,
+        estado: { notIn: ['CANCELADA', 'COMPLETADA'] },
+        ...(excluirActividadId ? { id: { not: excluirActividadId } } : {}),
+        fechaInicio: { lte: ventanaHasta },
+        OR: [
+          { fechaFin: null, fechaInicio: { gte: new Date(ventanaDesde.getTime() - 5 * 3600 * 1000) } },
+          { fechaFin: { gte: ventanaDesde } },
+        ],
+      },
+      include: {
+        usuarioResponsable: { select: { nombres: true, apellidos: true } },
+        parcela: { select: { nombre: true } },
+      },
+    });
+
+    if (asignacionSupervisor) {
+      const nombreSupervisor = asignacionSupervisor.usuarioResponsable
+        ? `${asignacionSupervisor.usuarioResponsable.nombres} ${asignacionSupervisor.usuarioResponsable.apellidos}`
+        : 'El supervisor';
+      const parcelaNombre = asignacionSupervisor.parcela?.nombre || 'otra parcela';
+      const codigoAct = asignacionSupervisor.codigo || asignacionSupervisor.titulo;
+
+      const mensaje = `En ese lapso, ${nombreSupervisor} ya ha sido designado a la labor "${codigoAct}" en ${parcelaNombre}.`;
+      return {
+        esValido: false,
+        mensaje,
+      };
+    }
+
+    return { esValido: true };
+  }
 }

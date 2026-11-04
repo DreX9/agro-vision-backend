@@ -4,9 +4,13 @@ import {
   Post,
   Body,
   Query,
+  Sse,
   HttpStatus,
   HttpCode,
+  MessageEvent,
 } from '@nestjs/common';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { CrearDiagnosticoDto } from '../../application/dtos/crear-diagnostico.dto.js';
 import { FiltrosDiagnosticosDto } from '../../application/dtos/filtros-diagnosticos.dto.js';
@@ -16,6 +20,7 @@ import {
 } from '../../application/dtos/diagnostico-item.dto.js';
 import { RegistrarDiagnosticoCasoUso } from '../../application/use-cases/registrar-diagnostico.caso-uso.js';
 import { ListarDiagnosticosCasoUso } from '../../application/use-cases/listar-diagnosticos.caso-uso.js';
+import { AlertasFitosanitariasService } from '../../application/services/alertas-fitosanitarias.service.js';
 
 @ApiTags('Diagnósticos de Campo e IA')
 @Controller('diagnosticos')
@@ -23,7 +28,37 @@ export class DiagnosticosController {
   constructor(
     private readonly registrarDiagnosticoCasoUso: RegistrarDiagnosticoCasoUso,
     private readonly listarDiagnosticosCasoUso: ListarDiagnosticosCasoUso,
+    private readonly alertasService: AlertasFitosanitariasService,
   ) {}
+
+  @Sse('alertas/en-vivo')
+  @ApiOperation({
+    summary: 'Flujo reactivo SSE de alertas fitosanitarias en tiempo real',
+    description: 'Permite a los agrónomos recibir notificaciones instantáneas tan pronto se detecta una alerta en campo.',
+  })
+  streamAlertas(): Observable<MessageEvent> {
+    return this.alertasService.obtenerStreamAlertas().pipe(
+      map(
+        (alerta) =>
+          ({
+            data: alerta,
+            type: 'alerta-fitosanitaria',
+          }) as MessageEvent,
+      ),
+    );
+  }
+
+  @Get('alertas/recientes')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Consultar alertas fitosanitarias recientes',
+    description: 'Obtiene las alertas emitidas recientemente o a partir de una marca de tiempo dada.',
+  })
+  @ApiResponse({ status: HttpStatus.OK, type: [DiagnosticoItemDto] })
+  obtenerAlertasRecientes(@Query('desde') desde?: string): DiagnosticoItemDto[] {
+    const desdeMs = desde ? new Date(desde).getTime() : undefined;
+    return this.alertasService.obtenerAlertasRecientes(desdeMs);
+  }
 
   @Post()
   @HttpCode(HttpStatus.CREATED)

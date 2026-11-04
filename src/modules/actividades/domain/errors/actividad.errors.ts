@@ -31,3 +31,9 @@ export class ConflictoDisponibilidadTrabajadorError extends ActividadError {
     super(mensaje);
   }
 }
+
+export class ConflictoDisponibilidadSupervisorError extends ActividadError {
+  constructor(mensaje: string) {
+    super(mensaje);
+  }
+}

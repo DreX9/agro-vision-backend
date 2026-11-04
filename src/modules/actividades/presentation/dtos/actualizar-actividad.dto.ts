@@ -7,6 +7,8 @@ import {
   IsDateString,
   IsArray,
   ValidateNested,
+  IsInt,
+  Min,
   MaxLength,
 } from 'class-validator';
 import { Type } from 'class-transformer';
@@ -62,6 +64,30 @@ export class ActualizarActividadDto {
   @IsOptional()
   @IsString({ message: 'Las observaciones deben ser texto' })
   readonly observaciones?: string;
+
+  @ApiPropertyOptional({ description: 'Blanco biológico o fitosanitario', example: 'Oídium' })
+  @IsOptional()
+  @IsString({ message: 'El blanco biológico debe ser una cadena de texto' })
+  @MaxLength(150, { message: 'El blanco biológico no puede superar los 150 caracteres' })
+  readonly blancoBiologico?: string;
+
+  @ApiPropertyOptional({ description: 'Método o sistema de aplicación', example: 'Foliar / Mochila' })
+  @IsOptional()
+  @IsString({ message: 'El método de aplicación debe ser una cadena de texto' })
+  @MaxLength(100, { message: 'El método de aplicación no puede superar los 100 caracteres' })
+  readonly metodoAplicacion?: string;
+
+  @ApiPropertyOptional({ description: 'Período de carencia en días antes de cosecha', example: 7 })
+  @IsOptional()
+  @IsInt({ message: 'Los días de carencia deben ser un número entero' })
+  @Min(0, { message: 'Los días de carencia no pueden ser negativos' })
+  readonly diasCarencia?: number;
+
+  @ApiPropertyOptional({ description: 'Período de reingreso seguro en horas', example: 24 })
+  @IsOptional()
+  @IsInt({ message: 'Las horas de reingreso deben ser un número entero' })
+  @Min(0, { message: 'Las horas de reingreso no pueden ser negativas' })
+  readonly horasReingreso?: number;
 
   @ApiPropertyOptional({ description: 'Estado actual', enum: EstadoActividad })
   @IsOptional()

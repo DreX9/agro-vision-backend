@@ -19,6 +19,8 @@ export interface RecursoAsignadoProps {
   categoriaInsumo: string;
   cantidadEstimada: number;
   unidadMedida: string;
+  dosis?: string | null;
+  cantidadReal?: number | null;
   notas?: string | null;
 }
 
@@ -29,6 +31,10 @@ export interface ActividadAgricolaProps {
   tipo: TipoActividad;
   descripcion?: string | null;
   observaciones?: string | null;
+  blancoBiologico?: string | null;
+  metodoAplicacion?: string | null;
+  diasCarencia?: number | null;
+  horasReingreso?: number | null;
   parcelaId: string;
   parcelaNombre?: string;
   sectorId?: string | null;
@@ -79,6 +85,22 @@ export class ActividadAgricola {
 
   get observaciones(): string | null | undefined {
     return this.props.observaciones;
+  }
+
+  get blancoBiologico(): string | null | undefined {
+    return this.props.blancoBiologico;
+  }
+
+  get metodoAplicacion(): string | null | undefined {
+    return this.props.metodoAplicacion;
+  }
+
+  get diasCarencia(): number | null | undefined {
+    return this.props.diasCarencia;
+  }
+
+  get horasReingreso(): number | null | undefined {
+    return this.props.horasReingreso;
   }
 
   get parcelaId(): string {

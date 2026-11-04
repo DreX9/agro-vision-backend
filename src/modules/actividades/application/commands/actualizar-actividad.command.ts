@@ -23,5 +23,9 @@ export class ActualizarActividadCommand {
     public readonly recursos?: RecursoAsignarComando[],
     public readonly actualizadoPor?: string,
     public readonly sectorId?: string,
+    public readonly blancoBiologico?: string,
+    public readonly metodoAplicacion?: string,
+    public readonly diasCarencia?: number,
+    public readonly horasReingreso?: number,
   ) {}
 }

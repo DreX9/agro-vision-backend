@@ -37,6 +37,7 @@ import {
   ActividadCodigoYaExisteError,
   ActividadNoEncontradaError,
   ConflictoDisponibilidadTrabajadorError,
+  ConflictoDisponibilidadSupervisorError,
 } from '../../domain/errors/actividad.errors.js';
 import { ValidadorDisponibilidadService } from '../../application/services/validador-disponibilidad.service.js';
 
@@ -108,8 +109,8 @@ export class ActividadesController {
   }
 
   @Get(':id')
-  @ApiOperation({ summary: 'Obtener detalle completo de una actividad agrícola' })
-  @ApiResponse({ status: 200, description: 'Detalle de la actividad encontrado', type: ActividadDetalleDto })
+  @ApiOperation({ summary: 'Consultar detalle completo de una actividad' })
+  @ApiResponse({ status: 200, description: 'Detalle de la actividad obtenido', type: ActividadDetalleDto })
   @ApiResponse({ status: 404, description: 'Actividad no encontrada' })
   async obtenerPorId(@Param('id') id: string): Promise<ActividadDetalleDto> {
     const resultado = await this.obtenerActividadPorIdCasoUso.ejecutar(id);
@@ -147,10 +148,16 @@ export class ActividadesController {
         insumoId: r.insumoId,
         cantidadEstimada: r.cantidadEstimada,
         unidadMedida: r.unidadMedida,
+        dosis: r.dosis,
+        cantidadReal: r.cantidadReal,
         notas: r.notas,
       })) || [],
       undefined,
       dto.sectorId,
+      dto.blancoBiologico,
+      dto.metodoAplicacion,
+      dto.diasCarencia,
+      dto.horasReingreso,
     );
 
     const resultado = await this.registrarActividadCasoUso.ejecutar(comando);
@@ -158,7 +165,8 @@ export class ActividadesController {
       const error = resultado.error;
       if (
         error instanceof ActividadCodigoYaExisteError ||
-        error instanceof ConflictoDisponibilidadTrabajadorError
+        error instanceof ConflictoDisponibilidadTrabajadorError ||
+        error instanceof ConflictoDisponibilidadSupervisorError
       ) {
         throw new ConflictException(error.message);
       }
@@ -199,10 +207,16 @@ export class ActividadesController {
         insumoId: r.insumoId,
         cantidadEstimada: r.cantidadEstimada,
         unidadMedida: r.unidadMedida,
+        dosis: r.dosis,
+        cantidadReal: r.cantidadReal,
         notas: r.notas,
       })),
       undefined,
       dto.sectorId,
+      dto.blancoBiologico,
+      dto.metodoAplicacion,
+      dto.diasCarencia,
+      dto.horasReingreso,
     );
 
     const resultado = await this.actualizarActividadCasoUso.ejecutar(comando);
@@ -211,7 +225,7 @@ export class ActividadesController {
       if (error instanceof ActividadNoEncontradaError) {
         throw new NotFoundException(error.message);
       }
-      if (error instanceof ConflictoDisponibilidadTrabajadorError) {
+      if (error instanceof ConflictoDisponibilidadTrabajadorError || error instanceof ConflictoDisponibilidadSupervisorError) {
         throw new ConflictException(error.message);
       }
       throw new BadRequestException(error.message);
@@ -221,17 +235,20 @@ export class ActividadesController {
   }
 
   @Patch(':id/estado')
-  @ApiOperation({ summary: 'Actualizar estado operativo de una actividad' })
+  @ApiOperation({ summary: 'Actualizar el estado de avance de una actividad' })
   @ApiResponse({ status: 200, description: 'Estado actualizado exitosamente', type: ActividadDetalleDto })
+  @ApiResponse({ status: 404, description: 'Actividad no encontrada' })
   async actualizarEstado(
     @Param('id') id: string,
     @Body() dto: ActualizarEstadoActividadDto,
   ): Promise<ActividadDetalleDto> {
     const comando = new ActualizarEstadoActividadCommand(id, dto.estado);
     const resultado = await this.actualizarEstadoActividadCasoUso.ejecutar(comando);
+
     if (resultado.isFailure) {
       throw new NotFoundException(resultado.error.message);
     }
+
     return resultado.value;
   }
 
@@ -239,6 +256,7 @@ export class ActividadesController {
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Eliminar lógicamente una actividad agrícola' })
   @ApiResponse({ status: 204, description: 'Actividad eliminada exitosamente' })
+  @ApiResponse({ status: 404, description: 'Actividad no encontrada' })
   async eliminar(@Param('id') id: string): Promise<void> {
     const resultado = await this.eliminarActividadCasoUso.ejecutar(id);
     if (resultado.isFailure) {
