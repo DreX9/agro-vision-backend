@@ -124,6 +124,9 @@ export class RegistrarDiagnosticoCasoUso {
       resultado.supervisorId = supervisorAsignadoId;
       resultado.supervisorNombre = supervisorAsignadoNombre;
     }
+    if (dto.ubicacionFueraTerreno) {
+      resultado.ubicacionFueraTerreno = true;
+    }
 
     // Si constituye una alerta fitosanitaria, notificar en tiempo real al supervisor y agrónomos
     if (guardado.esAlerta) {

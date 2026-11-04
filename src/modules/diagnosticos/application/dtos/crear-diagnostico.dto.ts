@@ -88,4 +88,9 @@ export class CrearDiagnosticoDto {
   @IsOptional()
   @IsString()
   observaciones?: string;
+
+  @ApiPropertyOptional({ description: 'Indica si la detección fue realizada fuera de los terrenos registrados', example: false })
+  @IsOptional()
+  @IsBoolean()
+  ubicacionFueraTerreno?: boolean;
 }

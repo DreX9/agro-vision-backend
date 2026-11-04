@@ -96,6 +96,9 @@ export class DiagnosticoItemDto {
   @ApiPropertyOptional()
   observaciones?: string | null;
 
+  @ApiPropertyOptional()
+  ubicacionFueraTerreno?: boolean;
+
   @ApiProperty()
   createdAt!: string;
 
@@ -140,6 +143,10 @@ export class DiagnosticoItemDto {
       imagenUrl: e.imagenUrl,
       origenCaptura: e.origenCaptura,
       observaciones: e.observaciones,
+      ubicacionFueraTerreno:
+        e.origenCaptura === 'OPERADOR_FUERA_TERRENO' ||
+        e.observaciones?.includes('FUERA') ||
+        false,
       createdAt: e.createdAt.toISOString(),
       updatedAt: e.updatedAt.toISOString(),
     };
