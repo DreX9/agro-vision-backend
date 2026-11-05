@@ -1,3 +1,5 @@
+// prisma/schema/seguridad.prisma
+
 enum RolUsuario {
   ADMINISTRADOR
   AGRONOMO
@@ -58,9 +60,10 @@ model Usuario {
   asignacionesActividad      ActividadTrabajador[] @relation("ActividadesTrabajador")
   diagnosticos               DiagnosticoCampo[]
 
+
+  subActividades             SubActividad[]
+
   // Auditoría Universal
-
-
   createdAt       DateTime     @default(now()) @map("created_at")
   createdBy       String?      @map("created_by") @db.Uuid
   updatedAt       DateTime     @updatedAt @map("updated_at")

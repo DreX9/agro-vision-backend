@@ -13,6 +13,7 @@ import {
   NotFoundException,
   ConflictException,
   BadRequestException,
+  Request,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { CrearActividadDto } from '../dtos/crear-actividad.dto.js';
@@ -41,8 +42,13 @@ import {
 } from '../../domain/errors/actividad.errors.js';
 import { ValidadorDisponibilidadService } from '../../application/services/validador-disponibilidad.service.js';
 
+import { CrearSubActividadesDto } from '../dtos/crear-sub-actividades.dto.js';
+import { RegistrarSubActividadesCasoUso } from '../../application/use-cases/registrar-subactividades.caso-uso.js';
+import { CompletarSubActividadCasoUso } from '../../application/use-cases/completar-subactividad.caso-uso.js';
+import { ListarSubActividadesOperadorCasoUso } from '../../application/use-cases/listar-subactividades-operador.caso-uso.js';
+
 /**
- * @description Controlador REST para la gestión de actividades y labores de campo agrícolas.
+ * @description
  */
 @ApiTags('Actividades')
 @ApiBearerAuth()
@@ -56,6 +62,10 @@ export class ActividadesController {
     private readonly actualizarEstadoActividadCasoUso: ActualizarEstadoActividadCasoUso,
     private readonly eliminarActividadCasoUso: EliminarActividadCasoUso,
     private readonly validadorDisponibilidad: ValidadorDisponibilidadService,
+
+    private readonly registrarSubActividadesUC: RegistrarSubActividadesCasoUso,
+    private readonly completarSubActividadUC: CompletarSubActividadCasoUso,
+    private readonly listarSubActividadesOperadorUC: ListarSubActividadesOperadorCasoUso,
   ) {}
 
   @Post('validar-disponibilidad')
@@ -87,6 +97,23 @@ export class ActividadesController {
       body.excluirActividadId,
     );
   }
+
+
+  @Get('mis-tareas/subactividades')
+  @ApiOperation({ summary: 'Operador: Listar subactividades que le fueron asignadas' })
+  async obtenerMisSubactividades(@Request() req: any) {
+    const operadorId = req.user?.id || req.user?.sub;
+    return this.listarSubActividadesOperadorUC.ejecutar(operadorId);
+  }
+
+  @Patch('subactividades/:subActividadId/completar')
+  @ApiOperation({ summary: 'Operador: Marcar una subactividad como completada' })
+  async completarSubActividad(@Param('subActividadId') subActividadId: string, @Request() req: any) {
+    const operadorId = req.user?.id || req.user?.sub;
+    return this.completarSubActividadUC.ejecutar(subActividadId, operadorId);
+  }
+
+
 
   @Get()
   @ApiOperation({ summary: 'Listar actividades agrícolas con filtros y paginación' })
@@ -174,6 +201,17 @@ export class ActividadesController {
     }
 
     return resultado.value;
+  }
+
+  @Post(':id/subactividades')
+  @ApiOperation({ summary: 'Supervisor: Asignar subactividades a operadores para una actividad' })
+  async asignarSubActividades(
+    @Param('id') actividadId: string,
+    @Body() dto: CrearSubActividadesDto,
+    @Request() req: any
+  ) {
+    const supervisorId = req.user?.id || req.user?.sub;
+    return this.registrarSubActividadesUC.ejecutar(actividadId, supervisorId, dto);
   }
 
   @Put(':id')
