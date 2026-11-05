@@ -39,6 +39,27 @@ export class DiagnosticoItemDto {
   @ApiPropertyOptional()
   usuarioNombre?: string | null;
 
+  @ApiPropertyOptional({ description: 'Rol del usuario que reportó el hallazgo' })
+  usuarioRol?: string | null;
+
+  @ApiPropertyOptional({ description: 'ID del supervisor responsable de la parcela' })
+  supervisorId?: string | null;
+
+  @ApiPropertyOptional({ description: 'Nombre del supervisor responsable de la parcela' })
+  supervisorNombre?: string | null;
+
+  @ApiPropertyOptional({ description: 'Rol jerárquico destinatario inmediato de la alerta' })
+  destinatarioRol?: string | null;
+
+  @ApiPropertyOptional({ description: 'Código de la actividad o labor en curso' })
+  actividadCodigo?: string | null;
+
+  @ApiPropertyOptional({ description: 'Título de la actividad o labor en curso' })
+  actividadTitulo?: string | null;
+
+  @ApiPropertyOptional({ description: 'Tipo de labor agrícola en curso' })
+  actividadTipo?: string | null;
+
   @ApiProperty()
   latitud!: number;
 
@@ -75,6 +96,9 @@ export class DiagnosticoItemDto {
   @ApiPropertyOptional()
   observaciones?: string | null;
 
+  @ApiPropertyOptional()
+  ubicacionFueraTerreno?: boolean;
+
   @ApiProperty()
   createdAt!: string;
 
@@ -95,6 +119,18 @@ export class DiagnosticoItemDto {
       cultivoVariedad: e.cultivoVariedad,
       usuarioId: e.usuarioId,
       usuarioNombre: e.usuarioNombre,
+      usuarioRol: e.usuarioRol,
+      supervisorId: e.supervisorId,
+      supervisorNombre: e.supervisorNombre,
+      actividadCodigo: e.actividadCodigo,
+      actividadTitulo: e.actividadTitulo,
+      actividadTipo: e.actividadTipo,
+      destinatarioRol:
+        e.usuarioRol === 'OPERADOR'
+          ? 'SUPERVISOR'
+          : e.usuarioRol === 'SUPERVISOR'
+            ? 'AGRONOMO'
+            : 'ADMINISTRADOR',
       latitud: e.latitud,
       longitud: e.longitud,
       estadoGeneral: e.estadoGeneral,
@@ -107,6 +143,10 @@ export class DiagnosticoItemDto {
       imagenUrl: e.imagenUrl,
       origenCaptura: e.origenCaptura,
       observaciones: e.observaciones,
+      ubicacionFueraTerreno:
+        e.origenCaptura === 'OPERADOR_FUERA_TERRENO' ||
+        e.observaciones?.includes('FUERA') ||
+        false,
       createdAt: e.createdAt.toISOString(),
       updatedAt: e.updatedAt.toISOString(),
     };

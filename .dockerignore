@@ -4,4 +4,7 @@ coverage
 .git
 .agents
 *.log
+<<<<<<< HEAD
 
+=======
+>>>>>>> main
