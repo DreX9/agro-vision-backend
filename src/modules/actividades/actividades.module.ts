@@ -2,6 +2,8 @@ import { Module } from '@nestjs/common';
 import { PrismaModule } from '@/prisma/prisma.module.js';
 import { ActividadesController } from './presentation/controllers/actividades.controller.js';
 import { InsumosController } from './presentation/controllers/insumos.controller.js';
+
+// --- Casos de uso existentes ---
 import { ListarActividadesCasoUso } from './application/use-cases/listar-actividades.caso-uso.js';
 import { ObtenerActividadPorIdCasoUso } from './application/use-cases/obtener-actividad-por-id.caso-uso.js';
 import { RegistrarActividadCasoUso } from './application/use-cases/registrar-actividad.caso-uso.js';
@@ -9,11 +11,16 @@ import { ActualizarActividadCasoUso } from './application/use-cases/actualizar-a
 import { ActualizarEstadoActividadCasoUso } from './application/use-cases/actualizar-estado-actividad.caso-uso.js';
 import { EliminarActividadCasoUso } from './application/use-cases/eliminar-actividad.caso-uso.js';
 import { ListarInsumosCasoUso } from './application/use-cases/listar-insumos.caso-uso.js';
+
+// --- Nuevos casos de uso para Subactividades ---
+import { RegistrarSubActividadesCasoUso } from './application/use-cases/registrar-subactividades.caso-uso.js';
+import { CompletarSubActividadCasoUso } from './application/use-cases/completar-subactividad.caso-uso.js';
+import { ListarSubActividadesOperadorCasoUso } from './application/use-cases/listar-subactividades-operador.caso-uso.js';
+
 import { ACTIVIDAD_REPOSITORIO_PORT } from './domain/ports/actividad-repositorio.port.js';
 import { INSUMO_REPOSITORIO_PORT } from './domain/ports/insumo-repositorio.port.js';
 import { PrismaActividadRepository } from './infrastructure/repositories/prisma-actividad.repository.js';
 import { PrismaInsumoRepository } from './infrastructure/repositories/prisma-insumo.repository.js';
-
 import { ValidadorDisponibilidadService } from './application/services/validador-disponibilidad.service.js';
 
 /**
@@ -31,6 +38,12 @@ import { ValidadorDisponibilidadService } from './application/services/validador
     ActualizarEstadoActividadCasoUso,
     EliminarActividadCasoUso,
     ListarInsumosCasoUso,
+
+    // Registramos los nuevos casos de uso aquí:
+    RegistrarSubActividadesCasoUso,
+    CompletarSubActividadCasoUso,
+    ListarSubActividadesOperadorCasoUso,
+
     {
       provide: ACTIVIDAD_REPOSITORIO_PORT,
       useClass: PrismaActividadRepository,

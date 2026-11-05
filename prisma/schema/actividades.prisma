@@ -40,6 +40,16 @@ enum CategoriaInsumo {
   @@schema("actividades")
 }
 
+// NUEVO ENUM PARA LAS SUBACTIVIDADES
+enum EstadoSubActividad {
+  PENDIENTE
+  COMPLETADA
+  CANCELADA
+
+  @@map("estados_subactividad")
+  @@schema("actividades")
+}
+
 model Insumo {
   id           String             @id @default(uuid(7)) @db.Uuid
   codigo       String             @unique @map("codigo") @db.VarChar(50)
@@ -102,6 +112,9 @@ model ActividadAgricola {
   trabajadores         ActividadTrabajador[]
   recursos             ActividadRecurso[]
 
+  // NUEVA RELACIÓN: Una actividad tiene muchas subactividades
+  subActividades       SubActividad[]
+
   // Auditoría Universal
   createdAt            DateTime             @default(now()) @map("created_at")
   createdBy            String?              @map("created_by") @db.Uuid
@@ -161,5 +174,30 @@ model ActividadRecurso {
   @@index([actividadId])
   @@index([insumoId])
   @@map("actividades_recursos")
+  @@schema("actividades")
+}
+
+model SubActividad {
+  id              String             @id @default(uuid(7)) @db.Uuid
+  actividadId     String             @map("actividad_id") @db.Uuid
+  operadorId      String             @map("operador_id") @db.Uuid
+  descripcion     String             @map("descripcion") @db.Text
+  estado          EstadoSubActividad @default(PENDIENTE) @map("estado")
+  fechaCompletado DateTime?          @map("fecha_completado")
+
+
+  actividad       ActividadAgricola  @relation(fields: [actividadId], references: [id], onDelete: Cascade)
+  operador        Usuario            @relation(fields: [operadorId], references: [id], onDelete: Restrict)
+
+
+  createdAt       DateTime           @default(now()) @map("created_at")
+  createdBy       String?            @map("created_by") @db.Uuid
+  updatedAt       DateTime           @updatedAt @map("updated_at")
+  updatedBy       String?            @map("updated_by") @db.Uuid
+
+  @@index([actividadId])
+  @@index([operadorId])
+  @@index([estado])
+  @@map("sub_actividades")
   @@schema("actividades")
 }
