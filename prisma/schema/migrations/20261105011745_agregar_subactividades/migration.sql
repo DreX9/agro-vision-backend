@@ -71,4 +71,4 @@ ALTER TABLE "diagnosticos"."diagnosticos_campo" ADD CONSTRAINT "diagnosticos_cam
 ALTER TABLE "diagnosticos"."diagnosticos_campo" ADD CONSTRAINT "diagnosticos_campo_sector_id_fkey" FOREIGN KEY ("sector_id") REFERENCES "parcelas"."sectores_parcela"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "diagnosticos"."diagnosticos_campo" ADD CONSTRAINT "diagnosticos_campo_usuario_id_fkey" FOREIGN KEY ("usuario_id") REFERENCES "usuarios"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "diagnosticos"."diagnosticos_campo" ADD CONSTRAINT "diagnosticos_campo_usuario_id_fkey" FOREIGN KEY ("usuario_id") REFERENCES "seguridad"."usuarios"("id") ON DELETE SET NULL ON UPDATE CASCADE;
