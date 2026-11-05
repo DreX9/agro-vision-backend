@@ -43,3 +43,4 @@ ENV NODE_ENV=production
 
 # Ejecutar migraciones en Neon, sembrar datos iniciales y arrancar NestJS
 CMD ["sh", "-c", "npx prisma migrate deploy && npx prisma db seed && node dist/main.js"]
+
