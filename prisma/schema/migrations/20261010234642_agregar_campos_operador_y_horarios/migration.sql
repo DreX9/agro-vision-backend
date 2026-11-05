@@ -6,7 +6,7 @@
 
 */
 -- CreateEnum
-CREATE TYPE "especialidades_agricola" AS ENUM ('GENERAL', 'PODADOR', 'FUMIGADOR_APLICADOR', 'REGADOR', 'TRACTORISTA_MAQUINISTA', 'COSECHADOR', 'INJERTADOR');
+CREATE TYPE "seguridad"."especialidades_agricola" AS ENUM ('GENERAL', 'PODADOR', 'FUMIGADOR_APLICADOR', 'REGADOR', 'TRACTORISTA_MAQUINISTA', 'COSECHADOR', 'INJERTADOR');
 
 -- AlterTable
 ALTER TABLE "actividades"."actividades_trabajadores" ADD COLUMN     "hora_fin" TIMESTAMP(3),
@@ -14,13 +14,13 @@ ADD COLUMN     "hora_inicio" TIMESTAMP(3),
 ADD COLUMN     "horas_asignadas" DECIMAL(5,2);
 
 -- AlterTable
-ALTER TABLE "usuarios" ADD COLUMN     "codigo_empleado" VARCHAR(50),
+ALTER TABLE "seguridad"."usuarios" ADD COLUMN     "codigo_empleado" VARCHAR(50),
 ADD COLUMN     "cuadrilla" VARCHAR(100),
-ADD COLUMN     "especialidad" "especialidades_agricola" DEFAULT 'GENERAL',
+ADD COLUMN     "especialidad" "seguridad"."especialidades_agricola" DEFAULT 'GENERAL',
 ADD COLUMN     "numero_documento" VARCHAR(20);
 
 -- CreateIndex
-CREATE UNIQUE INDEX "usuarios_codigo_empleado_key" ON "usuarios"("codigo_empleado");
+CREATE UNIQUE INDEX "usuarios_codigo_empleado_key" ON "seguridad"."usuarios"("codigo_empleado");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "usuarios_numero_documento_key" ON "usuarios"("numero_documento");
+CREATE UNIQUE INDEX "usuarios_numero_documento_key" ON "seguridad"."usuarios"("numero_documento");
