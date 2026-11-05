@@ -9,16 +9,16 @@ RUN apt-get update -y && apt-get install -y openssl
 RUN npm install -g pnpm@9
 
 # Copiar dependencias y schema de Prisma
-COPY package.json pnpm-lock.yaml ./
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml* ./
 COPY prisma ./prisma/
 
-# Instalar dependencias permitiendo scripts de build (prisma engines, esbuild)
+# Instalar dependencias y generar cliente Prisma
 RUN pnpm install --frozen-lockfile
-RUN pnpm prisma:generate
+RUN npx prisma generate
 
 # Copiar código fuente y compilar NestJS
 COPY . .
-RUN pnpm build
+RUN npx nest build
 
 # --- Imagen final de Producción ---
 FROM node:20-slim AS runner
